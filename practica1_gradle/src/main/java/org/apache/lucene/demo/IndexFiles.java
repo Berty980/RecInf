@@ -18,6 +18,10 @@ package org.apache.lucene.demo;
  */
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.StopFilter;
+import org.apache.lucene.analysis.es.SpanishAnalyzer;
+import org.apache.lucene.analysis.es.SpanishAnalyzer2;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
@@ -50,6 +54,12 @@ import java.util.Date;
 public class IndexFiles {
   
   private IndexFiles() {}
+
+  public static CharArraySet createStopSet2 (){
+    String [] stopWords = {"el", "la", "lo", "en"};
+    CharArraySet stopSet = StopFilter.makeStopSet(stopWords);
+    return stopSet;
+  }
 
   /** Index all text files under a directory. */
   public static void main(String[] args) {
@@ -88,7 +98,7 @@ public class IndexFiles {
       System.out.println("Indexing to directory '" + indexPath + "'...");
 
       Directory dir = FSDirectory.open(Paths.get(indexPath));
-      Analyzer analyzer = new StandardAnalyzer();
+      Analyzer analyzer = new SpanishAnalyzer2(createStopSet2());
       IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 
       if (create) {
@@ -198,7 +208,32 @@ public class IndexFiles {
           NodeList title = d.getElementsByTagName("dc:title");
           for (int i = 0; i < title.getLength(); i++) {
             Node n = title.item(i);
-            doc.add(new TextField("title", n.getTextContent(), Field.Store.NO));
+            doc.add(new TextField("título", n.getTextContent(), Field.Store.NO));
+          }
+          NodeList type = d.getElementsByTagName("dc:type");
+          for (int i = 0; i < type.getLength(); i++) {
+            Node n = type.item(i);
+            doc.add(new StringField("tipo", n.getTextContent(), Field.Store.NO));
+          }
+          NodeList description = d.getElementsByTagName("dc:description");
+          for (int i = 0; i < description.getLength(); i++) {
+            Node n = description.item(i);
+            doc.add(new TextField("descripción", n.getTextContent(), Field.Store.NO));
+          }
+          NodeList creator = d.getElementsByTagName("dc:creator");
+          for (int i = 0; i < creator.getLength(); i++) {
+            Node n = creator.item(i);
+            doc.add(new TextField("autor", n.getTextContent(), Field.Store.NO));
+          }
+          NodeList publisher = d.getElementsByTagName("dc:publisher");
+          for (int i = 0; i < publisher.getLength(); i++) {
+            Node n = publisher.item(i);
+            doc.add(new TextField("departamento", n.getTextContent(), Field.Store.NO));
+          }
+          NodeList date = d.getElementsByTagName("dc:date");
+          for (int i = 0; i < date.getLength(); i++) {
+            Node n = date.item(i);
+            doc.add(new TextField("fecha", n.getTextContent(), Field.Store.NO));
           }
 
           if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {

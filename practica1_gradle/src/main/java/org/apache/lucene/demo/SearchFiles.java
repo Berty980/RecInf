@@ -17,10 +17,7 @@ package org.apache.lucene.demo;
  * limitations under the License.
  */
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.file.Paths;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -28,6 +25,10 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.CharArraySet;
+import org.apache.lucene.analysis.StopFilter;
+import org.apache.lucene.analysis.es.SpanishAnalyzer;
+import org.apache.lucene.analysis.es.SpanishAnalyzer2;
 import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -44,10 +45,16 @@ public class SearchFiles {
 
   private SearchFiles() {}
 
+  public static CharArraySet createStopSet2 (){
+    String [] stopWords = {"el", "la", "lo", "en"};
+    CharArraySet stopSet = StopFilter.makeStopSet(stopWords);
+    return stopSet;
+  }
+
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
     String usage =
-      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-field f] [-repeat n] [-queries file] [-query string] [-raw] [-paging hitsPerPage]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
+      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-field f] [-repeat n] [-query file] [-queryString string] [-raw] [-paging hitsPerPage] [-output outputFile]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
     if (args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) {
       System.out.println(usage);
       System.exit(0);
@@ -56,6 +63,7 @@ public class SearchFiles {
     String index = "index";
     String field = "contents";
     String queries = null;
+    OutputStreamWriter outputFile = null;
     int repeat = 0;
     boolean raw = false;
     String queryString = null;
@@ -68,10 +76,10 @@ public class SearchFiles {
       } else if ("-field".equals(args[i])) {
         field = args[i+1];
         i++;
-      } else if ("-queries".equals(args[i])) {
+      } else if ("-query".equals(args[i])) {
         queries = args[i+1];
         i++;
-      } else if ("-query".equals(args[i])) {
+      } else if ("-queryString".equals(args[i])) {
         queryString = args[i+1];
         i++;
       } else if ("-repeat".equals(args[i])) {
@@ -86,12 +94,18 @@ public class SearchFiles {
           System.exit(1);
         }
         i++;
+      } else if ("-output".equals(args[i])) {
+        File output = new File(args[i+1]);
+        if (!output.exists()) {
+          output.createNewFile();
+        }
+        outputFile = new OutputStreamWriter(new FileOutputStream(args[i+1]));
       }
     }
     
     IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
     IndexSearcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new StandardAnalyzer();
+    Analyzer analyzer = new SpanishAnalyzer2(createStopSet2());
 
     BufferedReader in = null;
     if (queries != null) {
@@ -100,6 +114,7 @@ public class SearchFiles {
       in = new BufferedReader(new InputStreamReader(System.in, "UTF-8"));
     }
     QueryParser parser = new QueryParser(field, analyzer);
+    int nQuery = 1;
     while (true) {
       if (queries == null && queryString == null) {                        // prompt the user
         System.out.println("Enter query: ");
@@ -128,13 +143,15 @@ public class SearchFiles {
         System.out.println("Time: "+(end.getTime()-start.getTime())+"ms");
       }
 
-      doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null);
+      doPagingSearch(in, searcher, query, hitsPerPage, raw, queries == null && queryString == null, outputFile, nQuery);
+      nQuery++;
 
       if (queryString != null) {
         break;
       }
     }
     reader.close();
+    outputFile.close();
   }
 
   /**
@@ -148,7 +165,8 @@ public class SearchFiles {
    * 
    */
   public static void doPagingSearch(BufferedReader in, IndexSearcher searcher, Query query, 
-                                     int hitsPerPage, boolean raw, boolean interactive) throws IOException {
+                                      int hitsPerPage, boolean raw, boolean interactive,
+                                      OutputStreamWriter outputFile, int nQuery) throws IOException {
  
     // Collect enough docs to show 5 pages
     TopDocs results = searcher.search(query, 5 * hitsPerPage);
@@ -161,39 +179,38 @@ public class SearchFiles {
     int end = Math.min(numTotalHits, hitsPerPage);
         
     while (true) {
-      if (end > hits.length) {
-        System.out.println("Only results 1 - " + hits.length +" of " + numTotalHits + " total matching documents collected.");
-        System.out.println("Collect more (y/n) ?");
-        String line = in.readLine();
-        if (line.length() == 0 || line.charAt(0) == 'n') {
-          break;
-        }
+//      if (end > hits.length) {
+//        System.out.println("Only results 1 - " + hits.length +" of " + numTotalHits + " total matching documents collected.");
+//        System.out.println("Collect more (y/n) ?");
+//        String line = in.readLine();
+//        if (line.length() == 0 || line.charAt(0) == 'n') {
+//          break;
+//        }
+//
+//        hits = searcher.search(query, numTotalHits).scoreDocs;
+//      }
 
-        hits = searcher.search(query, numTotalHits).scoreDocs;
-      }
-      
       end = Math.min(hits.length, start + hitsPerPage);
-      
-      for (int i = start; i < end; i++) {
-        if (raw) {                              // output raw format
-          System.out.println("doc="+hits[i].doc+" score="+hits[i].score);
-          continue;
-        }
+       for (int i = 0; i < hits.length; i++) {
+//        if (raw) {                              // output raw format
+//          System.out.println("doc="+hits[i].doc+" score="+hits[i].score);
+//          continue;
+//        }
 
         Document doc = searcher.doc(hits[i].doc);
         String path = doc.get("path");
-        String lastModified = doc.get("modified");
-        DateFormat df = new SimpleDateFormat("EE MMM dd HH:mm:ss zz yyyy", Locale.ENGLISH);
-        Date date = new Date(Long.parseLong(lastModified));
+//        String lastModified = doc.get("modified");
+//        DateFormat df = new SimpleDateFormat("EE MMM dd HH:mm:ss zz yyyy", Locale.ENGLISH);
+//        Date date = new Date(Long.parseLong(lastModified));
         if (path != null) {
-          System.out.println((i+1) + ". " + path);
-          System.out.println("  modified: " + df.format(date));
-          // explain the scoring function
-          System . out . println ( searcher . explain (query , hits [i]. doc ));
+          String out = nQuery + "\t" + path + "\n";
+          outputFile.write(out);
+//          // explain the scoring function
+//          System . out . println ( searcher . explain (query , hits [i]. doc ));
         } else {
           System.out.println((i+1) + ". " + "No path for this document");
         }
-
+        outputFile.flush();
       }
 
       if (!interactive || end == 0) {
@@ -202,7 +219,7 @@ public class SearchFiles {
 
       if (numTotalHits >= end) {
         boolean quit = false;
-        while (true) {  
+        while (true) {
           System.out.print("Press ");
           if (start - hitsPerPage >= 0) {
             System.out.print("(p)revious page, ");
@@ -211,7 +228,7 @@ public class SearchFiles {
             System.out.print("(n)ext page, ");
           }
           System.out.println("(q)uit or enter number to jump to a page.");
-          
+
           String line = in.readLine();
           if (line.length() == 0 || line.charAt(0)=='q') {
             quit = true;
