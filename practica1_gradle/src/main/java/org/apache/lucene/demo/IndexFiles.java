@@ -200,25 +200,16 @@ public class IndexFiles {
           DocumentBuilderFactory dbf = DocumentBuilderFactory.newDefaultInstance();
           DocumentBuilder db = dbf.newDocumentBuilder();
           org.w3c.dom.Document d = db.parse(fis);
-          NodeList title = d.getElementsByTagName("dc:title");
-          for (int i = 0; i < title.getLength(); i++) {
-            Node n = title.item(i);
-            doc.add(new TextField("título", n.getTextContent(), Field.Store.NO));
-          }
-          NodeList type = d.getElementsByTagName("dc:type");
-          for (int i = 0; i < type.getLength(); i++) {
-            Node n = type.item(i);
-            doc.add(new StringField("tipo", n.getTextContent(), Field.Store.NO));
-          }
-          NodeList description = d.getElementsByTagName("dc:description");
-          for (int i = 0; i < description.getLength(); i++) {
-            Node n = description.item(i);
-            doc.add(new TextField("descripción", n.getTextContent(), Field.Store.NO));
-          }
+
           NodeList creator = d.getElementsByTagName("dc:creator");
           for (int i = 0; i < creator.getLength(); i++) {
             Node n = creator.item(i);
             doc.add(new TextField("autor", n.getTextContent(), Field.Store.NO));
+          }
+          NodeList contributor = d.getElementsByTagName("dc:contributor");
+          for (int i = 0; i < contributor.getLength(); i++) {
+            Node n = contributor.item(i);
+            doc.add(new TextField("director", n.getTextContent(), Field.Store.NO));
           }
           NodeList publisher = d.getElementsByTagName("dc:publisher");
           for (int i = 0; i < publisher.getLength(); i++) {
@@ -229,6 +220,21 @@ public class IndexFiles {
           for (int i = 0; i < date.getLength(); i++) {
             Node n = date.item(i);
             doc.add(new TextField("fecha", n.getTextContent(), Field.Store.NO));
+          }
+          NodeList title = d.getElementsByTagName("dc:title");
+          for (int i = 0; i < title.getLength(); i++) {
+            Node n = title.item(i);
+            doc.add(new TextField("titulo", n.getTextContent(), Field.Store.NO));
+          }
+          NodeList type = d.getElementsByTagName("dc:type");
+          for (int i = 0; i < type.getLength(); i++) {
+            Node n = type.item(i);
+            doc.add(new StringField("tipo", n.getTextContent(), Field.Store.NO));
+          }
+          NodeList description = d.getElementsByTagName("dc:description");
+          for (int i = 0; i < description.getLength(); i++) {
+            Node n = description.item(i);
+            doc.add(new TextField("descripcion", n.getTextContent(), Field.Store.NO));
           }
 
           if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
