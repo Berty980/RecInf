@@ -1,0 +1,3 @@
+autor:Julio AND departamento:Matemáticas
+fecha:2016 AND autor:Pedro
+fecha:1994

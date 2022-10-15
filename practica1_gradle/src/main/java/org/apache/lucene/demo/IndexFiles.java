@@ -20,9 +20,7 @@ package org.apache.lucene.demo;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.StopFilter;
-import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer2;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
 import org.apache.lucene.index.IndexWriterConfig.OpenMode;
@@ -37,12 +35,10 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.nio.file.Paths;
 import java.util.Date;
 
@@ -57,16 +53,15 @@ public class IndexFiles {
 
   public static CharArraySet createStopSet2 (){
     String [] stopWords = {"el", "la", "lo", "en"};
-    CharArraySet stopSet = StopFilter.makeStopSet(stopWords);
-    return stopSet;
+    return StopFilter.makeStopSet(stopWords);
   }
 
   /** Index all text files under a directory. */
   public static void main(String[] args) {
-    String usage = "java org.apache.lucene.demo.IndexFiles"
-                 + " [-index INDEX_PATH] [-docs DOCS_PATH] [-update]\n\n"
-                 + "This indexes the documents in DOCS_PATH, creating a Lucene index"
-                 + "in INDEX_PATH that can be searched with SearchFiles";
+    String usage = """
+            java org.apache.lucene.demo.IndexFiles [-index INDEX_PATH] [-docs DOCS_PATH] [-update]
+
+            This indexes the documents in DOCS_PATH, creating a Lucene indexin INDEX_PATH that can be searched with SearchFiles""";
     String indexPath = "index";
     String docsPath = null;
     boolean create = true;
@@ -113,7 +108,7 @@ public class IndexFiles {
       // Optional: for better indexing performance, if you
       // are indexing many documents, increase the RAM
       // buffer.  But if you do this, increase the max heap
-      // size to the JVM (eg add -Xmx512m or -Xmx1g):
+      // size to the JVM (e.g. add -Xmx512m or -Xmx1g):
       //
       // iwc.setRAMBufferSizeMB(256.0);
 
@@ -142,7 +137,7 @@ public class IndexFiles {
   /**
    * Indexes the given file using the given writer, or if a directory is given,
    * recurses over files and directories found under the given directory.
-   * 
+   * <p>
    * NOTE: This method indexes one document per input file.  This is slow.  For good
    * throughput, put multiple documents into your input file(s).  An example of this is
    * in the benchmark module, which can create "line doc" files, one document per line,
@@ -162,8 +157,8 @@ public class IndexFiles {
         String[] files = file.list();
         // an IO error could occur
         if (files != null) {
-          for (int i = 0; i < files.length; i++) {
-            indexDocs(writer, new File(file, files[i]));
+          for (String s : files) {
+            indexDocs(writer, new File(file, s));
           }
         }
       } else {
@@ -172,7 +167,7 @@ public class IndexFiles {
         try {
           fis = new FileInputStream(file);
         } catch (FileNotFoundException fnfe) {
-          // at least on windows, some temporary files raise this exception with an "access denied" message
+          // at least on Windows, some temporary files raise this exception with an "access denied" message
           // checking if the file can be read doesn't help
           return;
         }
@@ -191,7 +186,7 @@ public class IndexFiles {
 
           // Add the last modified date of the file a field named "modified".
           // Use a StoredField to return later its value as a response to a query.
-          // This indexes to milli-second resolution, which
+          // This indexes to millisecond resolution, which
           // is often too fine.  You could instead create a number based on
           // year/month/day/hour/minutes/seconds, down the resolution you require.
           // For example the long value 2011021714 would mean
