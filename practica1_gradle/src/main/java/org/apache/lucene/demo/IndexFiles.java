@@ -229,7 +229,7 @@ public class IndexFiles {
           NodeList type = d.getElementsByTagName("dc:type");
           for (int i = 0; i < type.getLength(); i++) {
             Node n = type.item(i);
-            doc.add(new StringField("tipo", n.getTextContent(), Field.Store.NO));
+            doc.add(new TextField("tipo", n.getTextContent(), Field.Store.NO));
           }
           NodeList description = d.getElementsByTagName("dc:description");
           for (int i = 0; i < description.getLength(); i++) {
