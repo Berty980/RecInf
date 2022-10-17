@@ -1,1 +1,5 @@
-director:mor*
+tipo:tesis
+pclave:microf*
+tipo:TFM AND fecha:2017 AND director:Juan
+tipo:tesis AND titulo:algoritmos
+tipo:tesis AND titulo:análisis AND fecha:2016 AND departamento:eléctrica AND autor:Romero AND director:Estela AND descripcion:tecnología

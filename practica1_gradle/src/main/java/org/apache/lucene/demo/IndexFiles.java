@@ -219,7 +219,7 @@ public class IndexFiles {
           NodeList date = d.getElementsByTagName("dc:date");
           for (int i = 0; i < date.getLength(); i++) {
             Node n = date.item(i);
-            doc.add(new TextField("fecha", n.getTextContent(), Field.Store.NO));
+            doc.add(new StringField("fecha", n.getTextContent(), Field.Store.NO));
           }
           NodeList title = d.getElementsByTagName("dc:title");
           for (int i = 0; i < title.getLength(); i++) {
@@ -235,6 +235,11 @@ public class IndexFiles {
           for (int i = 0; i < description.getLength(); i++) {
             Node n = description.item(i);
             doc.add(new TextField("descripcion", n.getTextContent(), Field.Store.NO));
+          }
+          NodeList subject = d.getElementsByTagName("dc:subject");
+          for (int i = 0; i < subject.getLength(); i++) {
+            Node n = subject.item(i);
+            doc.add(new TextField("pclave", n.getTextContent(), Field.Store.NO));
           }
 
           if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
