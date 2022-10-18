@@ -26,14 +26,14 @@ import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.es.SpanishAnalyzer2;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.QueryParser;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.search.*;
 import org.apache.lucene.store.FSDirectory;
+
+import static java.lang.Double.NEGATIVE_INFINITY;
 
 /** Simple command-line based search demo. */
 public class SearchFiles {
@@ -90,10 +90,50 @@ public class SearchFiles {
       if (line.length() == 0) {
         break;
       }
-      
-      Query query = parser.parse(line);
-      System.out.println("Searching for: " + query.toString(field));
+      Query query;
+      int startSpatial = line.indexOf("spatial:");
 
+      if (startSpatial != -1) {
+        int endSpatial = line.indexOf(" ", startSpatial);
+
+        String spatial = line.substring(startSpatial, endSpatial);
+        line = line.substring(0,startSpatial) + line.substring(endSpatial+1);
+
+        // Spatial query
+        int separator = spatial.indexOf(":");
+        int auxSep = separator;
+        Double[] coords = new Double[4];
+        for(int i = 0; i < 3; i++) {
+          separator = spatial.indexOf(',', auxSep+1);
+          coords[i] = Double.parseDouble(spatial.substring(auxSep+1, separator));
+          auxSep = separator;
+        }
+        coords[3] = Double.parseDouble(spatial.substring(separator+1));
+
+        Query westRangeQuery = DoublePoint.newRangeQuery("west",
+                                  Double.NEGATIVE_INFINITY, coords[1]);
+        Query eastRangeQuery = DoublePoint.newRangeQuery("east",
+                                  coords[0], Double.POSITIVE_INFINITY);
+        Query southRangeQuery = DoublePoint.newRangeQuery("south",
+                                  Double.NEGATIVE_INFINITY, coords[3]);
+        Query northRangeQuery = DoublePoint.newRangeQuery("north",
+                                  coords[2], Double.POSITIVE_INFINITY);
+        Query spatialQuery = new BooleanQuery.Builder()
+                .add(westRangeQuery, BooleanClause.Occur.MUST)
+                .add(eastRangeQuery, BooleanClause.Occur.MUST)
+                .add(northRangeQuery, BooleanClause.Occur.MUST)
+                .add(southRangeQuery, BooleanClause.Occur.MUST).build();
+
+        Query normalQuery = parser.parse(line);
+        query = new BooleanQuery.Builder()
+                .add(spatialQuery, BooleanClause.Occur.SHOULD)
+                .add(normalQuery, BooleanClause.Occur.SHOULD).build();
+      }
+      else {
+        query = parser.parse(line);
+      }
+
+      System.out.println("Searching for: " + query.toString(field));
       doPagingSearch(searcher, query, hitsPerPage, outputFile, nQuery);
       nQuery++;
     }

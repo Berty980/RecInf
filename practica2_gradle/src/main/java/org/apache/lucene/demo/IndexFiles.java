@@ -134,6 +134,34 @@ public class IndexFiles {
     }
   }
 
+  static void addField(Document doc, org.w3c.dom.Document d, String tag,
+                              String name, String fieldType) {
+    NodeList list = d.getElementsByTagName(tag);
+    for (int i = 0; i < list.getLength(); i++) {
+      Node n = list.item(i);
+      if (fieldType.equals("TextField")) {
+        doc.add(new TextField(name, n.getTextContent(), Field.Store.NO));
+      }
+      else if (fieldType.equals("StringField")){
+        doc.add(new StringField(name, n.getTextContent(), Field.Store.NO));
+      }
+      else {
+        String corner = n.getTextContent();
+        int separator = corner.lastIndexOf(' ');
+        String lon = corner.substring(0, separator);
+        String lat = corner.substring(separator+1);
+        if (name.equals("LowerCorner")) {
+          doc.add(new DoublePoint("west", Double.parseDouble(lon)));
+          doc.add(new DoublePoint("south", Double.parseDouble(lat)));
+        }
+        else {
+          doc.add(new DoublePoint("east", Double.parseDouble(lon)));
+          doc.add(new DoublePoint("north", Double.parseDouble(lat)));
+        }
+      }
+    }
+  }
+
   /**
    * Indexes the given file using the given writer, or if a directory is given,
    * recurses over files and directories found under the given directory.
@@ -201,46 +229,16 @@ public class IndexFiles {
           DocumentBuilder db = dbf.newDocumentBuilder();
           org.w3c.dom.Document d = db.parse(fis);
 
-          NodeList creator = d.getElementsByTagName("dc:creator");
-          for (int i = 0; i < creator.getLength(); i++) {
-            Node n = creator.item(i);
-            doc.add(new TextField("autor", n.getTextContent(), Field.Store.NO));
-          }
-          NodeList contributor = d.getElementsByTagName("dc:contributor");
-          for (int i = 0; i < contributor.getLength(); i++) {
-            Node n = contributor.item(i);
-            doc.add(new TextField("director", n.getTextContent(), Field.Store.NO));
-          }
-          NodeList publisher = d.getElementsByTagName("dc:publisher");
-          for (int i = 0; i < publisher.getLength(); i++) {
-            Node n = publisher.item(i);
-            doc.add(new TextField("departamento", n.getTextContent(), Field.Store.NO));
-          }
-          NodeList date = d.getElementsByTagName("dc:date");
-          for (int i = 0; i < date.getLength(); i++) {
-            Node n = date.item(i);
-            doc.add(new StringField("fecha", n.getTextContent(), Field.Store.NO));
-          }
-          NodeList title = d.getElementsByTagName("dc:title");
-          for (int i = 0; i < title.getLength(); i++) {
-            Node n = title.item(i);
-            doc.add(new TextField("titulo", n.getTextContent(), Field.Store.NO));
-          }
-          NodeList type = d.getElementsByTagName("dc:type");
-          for (int i = 0; i < type.getLength(); i++) {
-            Node n = type.item(i);
-            doc.add(new TextField("tipo", n.getTextContent(), Field.Store.NO));
-          }
-          NodeList description = d.getElementsByTagName("dc:description");
-          for (int i = 0; i < description.getLength(); i++) {
-            Node n = description.item(i);
-            doc.add(new TextField("descripcion", n.getTextContent(), Field.Store.NO));
-          }
-          NodeList subject = d.getElementsByTagName("dc:subject");
-          for (int i = 0; i < subject.getLength(); i++) {
-            Node n = subject.item(i);
-            doc.add(new TextField("pclave", n.getTextContent(), Field.Store.NO));
-          }
+          addField(doc, d, "dc:creator", "autor", "TextField");
+          addField(doc, d, "dc:contributor", "director", "TextField");
+          addField(doc, d, "dc:publisher", "departamento", "TextField");
+          addField(doc, d, "dc:date", "fecha", "StringField");
+          addField(doc, d, "dc:title", "titulo", "TextField");
+          addField(doc, d, "dc:type", "tipo", "StringField");
+          addField(doc, d, "dc:description", "descripcion", "TextField");
+          addField(doc, d, "dc:subject", "pclave", "TextField");
+          addField(doc, d, "ows:LowerCorner", "LowerCorner", "DoublePoint");
+          addField(doc, d, "ows:UpperCorner", "UpperCorner", "DoublePoint");
 
           if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
             // New index, so we just add the document (no old document can be there):
