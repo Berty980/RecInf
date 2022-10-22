@@ -18,8 +18,6 @@ package org.apache.lucene.demo;
  */
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.es.SpanishAnalyzer2;
 import org.apache.lucene.document.*;
 import org.apache.lucene.index.IndexWriter;
@@ -35,10 +33,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Paths;
 import java.util.Date;
 
@@ -50,11 +45,6 @@ import java.util.Date;
 public class IndexFiles {
   
   private IndexFiles() {}
-
-  public static CharArraySet createStopSet2 (){
-    String [] stopWords = {"el", "la", "lo", "en"};
-    return StopFilter.makeStopSet(stopWords);
-  }
 
   /** Index all text files under a directory. */
   public static void main(String[] args) {
@@ -93,7 +83,7 @@ public class IndexFiles {
       System.out.println("Indexing to directory '" + indexPath + "'...");
 
       Directory dir = FSDirectory.open(Paths.get(indexPath));
-      Analyzer analyzer = new SpanishAnalyzer2(createStopSet2());
+      Analyzer analyzer = new SpanishAnalyzer2();
       IndexWriterConfig iwc = new IndexWriterConfig(analyzer);
 
       if (create) {

@@ -24,6 +24,7 @@ import java.nio.file.Paths;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.StopFilter;
+import org.apache.lucene.analysis.WordlistLoader;
 import org.apache.lucene.analysis.es.SpanishAnalyzer2;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoublePoint;
@@ -32,6 +33,10 @@ import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.QueryParser;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.FSDirectory;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import static java.lang.Double.NEGATIVE_INFINITY;
 
@@ -40,15 +45,10 @@ public class SearchFiles {
 
   private SearchFiles() {}
 
-  public static CharArraySet createStopSet2 (){
-    String [] stopWords = {"el", "la", "lo", "en"};
-    return StopFilter.makeStopSet(stopWords);
-  }
-
   /** Simple command-line based search demo. */
   public static void main(String[] args) throws Exception {
     String usage =
-      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-query file] [-output outputFile]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
+      "Usage:\tjava org.apache.lucene.demo.SearchFiles [-index dir] [-infoNeeds file] [-output outputFile]\n\nSee http://lucene.apache.org/core/4_1_0/demo/ for details.";
     if ((args.length > 0 && ("-h".equals(args[0]) || "-help".equals(args[0]))) || args.length < 6) {
       System.out.println(usage);
       System.exit(0);
@@ -56,7 +56,7 @@ public class SearchFiles {
 
     String index = "index";
     String field = "contents";
-    String queries = "";
+    String infoNeeds = "";
     OutputStreamWriter outputFile = null;
     int hitsPerPage = 9999999;
     
@@ -64,17 +64,47 @@ public class SearchFiles {
       if ("-index".equals(args[i])) {
         index = args[i+1];
         i++;
-      } else if ("-query".equals(args[i])) {
-        queries = args[i+1];
+      } else if ("-infoNeeds".equals(args[i])) {
+        infoNeeds = args[i+1];
         i++;
       } else if ("-output".equals(args[i])) {
         outputFile = new OutputStreamWriter(new FileOutputStream(args[i+1]));
       }
     }
+
+    try (InputStream modelIn = new FileInputStream("es-ner-misc.bin")){
+      TokenNameFinderModel model = new TokenNameFinderModel(modelIn);
+    }
+
+    FileInputStream fis;
+    try {
+      fis = new FileInputStream(infoNeeds);
+    } catch (FileNotFoundException fnfe) {
+      // at least on Windows, some temporary files raise this exception with an "access denied" message
+      // checking if the file can be read doesn't help
+      return;
+    }
+
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newDefaultInstance();
+    DocumentBuilder db = dbf.newDocumentBuilder();
+    org.w3c.dom.Document d = db.parse(fis);
+
+    NodeList ids = d.getElementsByTagName("identifier");
+    NodeList text = d.getElementsByTagName("text");
+
+    for(int i = 0; i < ids.getLength(); i++){
+
+
+
+
+      doPagingSearch(searcher, query, hitsPerPage, outputFile, ids.item(0).getTextContent());
+    }
     
-    IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+    /*IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
     IndexSearcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new SpanishAnalyzer2(createStopSet2());
+    Analyzer analyzer = new SpanishAnalyzer2();
+
+
 
     BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(queries), StandardCharsets.UTF_8));
     QueryParser parser = new QueryParser(field, analyzer);
@@ -149,7 +179,7 @@ public class SearchFiles {
       doPagingSearch(searcher, query, hitsPerPage, outputFile, nQuery);
       nQuery++;
     }
-    reader.close();
+    reader.close();*/
     assert outputFile != null;
     outputFile.close();
   }
@@ -165,7 +195,7 @@ public class SearchFiles {
    * 
    */
   public static void doPagingSearch(IndexSearcher searcher, Query query, int hitsPerPage,
-                                      OutputStreamWriter outputFile, int nQuery) throws IOException {
+                                      OutputStreamWriter outputFile, String nQuery) throws IOException {
     // Collect enough docs to show 5 pages
     TopDocs results = searcher.search(query, 5 * hitsPerPage);
     ScoreDoc[] hits = results.scoreDocs;

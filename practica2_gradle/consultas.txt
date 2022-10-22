@@ -1,1 +1,1 @@
-spatial:-180,180,-90,90 titulo:natura
+creado:[1980 TO 2010]
