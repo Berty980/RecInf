@@ -139,26 +139,24 @@ public class IndexFiles {
     NodeList list = d.getElementsByTagName(tag);
     for (int i = 0; i < list.getLength(); i++) {
       Node n = list.item(i);
-      if (fieldType.equals("TextField")) {
-        doc.add(new TextField(name, n.getTextContent(), Field.Store.NO));
-      }
-      else if (fieldType.equals("StringField")){
-        doc.add(new StringField(name, n.getTextContent(), Field.Store.NO));
-      }
-      else {
-        String corner = n.getTextContent();
-        int separator = corner.lastIndexOf(' ');
-        String lon = corner.substring(0, separator);
-        String lat = corner.substring(separator+1);
-        if (name.equals("LowerCorner")) {
-          doc.add(new DoublePoint("west", Double.parseDouble(lon)));
-          doc.add(new DoublePoint("south", Double.parseDouble(lat)));
+        switch (fieldType) {
+            case "TextField" -> doc.add(new TextField(name, n.getTextContent(), Field.Store.NO));
+            case "StringField" -> doc.add(new StringField(name, n.getTextContent(), Field.Store.NO));
+            case "Date" -> doc.add(new StringField(name, n.getTextContent().replace("-", ""), Field.Store.NO));
+            default -> {
+                String corner = n.getTextContent();
+                int separator = corner.lastIndexOf(' ');
+                String lon = corner.substring(0, separator);
+                String lat = corner.substring(separator + 1);
+                if (name.equals("LowerCorner")) {
+                    doc.add(new DoublePoint("west", Double.parseDouble(lon)));
+                    doc.add(new DoublePoint("south", Double.parseDouble(lat)));
+                } else {
+                    doc.add(new DoublePoint("east", Double.parseDouble(lon)));
+                    doc.add(new DoublePoint("north", Double.parseDouble(lat)));
+                }
+            }
         }
-        else {
-          doc.add(new DoublePoint("east", Double.parseDouble(lon)));
-          doc.add(new DoublePoint("north", Double.parseDouble(lat)));
-        }
-      }
     }
   }
 
@@ -239,6 +237,8 @@ public class IndexFiles {
           addField(doc, d, "dc:subject", "pclave", "TextField");
           addField(doc, d, "ows:LowerCorner", "LowerCorner", "DoublePoint");
           addField(doc, d, "ows:UpperCorner", "UpperCorner", "DoublePoint");
+          addField(doc, d, "dcterms:issued", "publicado", "Date");
+          addField(doc, d, "dcterms:created", "creado", "Date");
 
           if (writer.getConfig().getOpenMode() == OpenMode.CREATE) {
             // New index, so we just add the document (no old document can be there):

@@ -60,7 +60,7 @@ public class SearchFiles {
     OutputStreamWriter outputFile = null;
     int hitsPerPage = 9999999;
     
-    for(int i = 0;i < args.length;i++) {
+    for(int i = 0;i < args.length - 1;i++) {
       if ("-index".equals(args[i])) {
         index = args[i+1];
         i++;
@@ -94,10 +94,12 @@ public class SearchFiles {
       int startSpatial = line.indexOf("spatial:");
 
       if (startSpatial != -1) {
+        String spatial = "";
         int endSpatial = line.indexOf(" ", startSpatial);
-
-        String spatial = line.substring(startSpatial, endSpatial);
-        line = line.substring(0,startSpatial) + line.substring(endSpatial+1);
+        if (endSpatial == -1)
+          spatial = line.substring(startSpatial);
+        else
+          spatial = line.substring(startSpatial, endSpatial);
 
         // Spatial query
         int separator = spatial.indexOf(":");
@@ -118,16 +120,26 @@ public class SearchFiles {
                                   Double.NEGATIVE_INFINITY, coords[3]);
         Query northRangeQuery = DoublePoint.newRangeQuery("north",
                                   coords[2], Double.POSITIVE_INFINITY);
-        Query spatialQuery = new BooleanQuery.Builder()
+        BooleanQuery spatialQuery = new BooleanQuery.Builder()
                 .add(westRangeQuery, BooleanClause.Occur.MUST)
                 .add(eastRangeQuery, BooleanClause.Occur.MUST)
                 .add(northRangeQuery, BooleanClause.Occur.MUST)
                 .add(southRangeQuery, BooleanClause.Occur.MUST).build();
 
-        Query normalQuery = parser.parse(line);
-        query = new BooleanQuery.Builder()
-                .add(spatialQuery, BooleanClause.Occur.SHOULD)
-                .add(normalQuery, BooleanClause.Occur.SHOULD).build();
+        if(endSpatial == -1)
+          line = line.substring(0,startSpatial);
+        else
+          line = line.substring(0,startSpatial) + line.substring(endSpatial+1);
+        if (!line.equals("")) {
+          Query normalQuery = parser.parse(line);
+          query = new BooleanQuery.Builder()
+                  .add(spatialQuery, BooleanClause.Occur.SHOULD)
+                  .add(normalQuery, BooleanClause.Occur.SHOULD).build();
+        }
+        else {
+          query = new BooleanQuery.Builder()
+                  .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
+        }
       }
       else {
         query = parser.parse(line);
