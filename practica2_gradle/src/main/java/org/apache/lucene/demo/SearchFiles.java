@@ -20,7 +20,14 @@ package org.apache.lucene.demo;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
+import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.util.Span;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.StopFilter;
@@ -30,7 +37,10 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
+import org.apache.lucene.search.BooleanQuery.Builder;
 import org.apache.lucene.search.*;
 import org.apache.lucene.store.FSDirectory;
 import org.w3c.dom.NodeList;
@@ -72,9 +82,10 @@ public class SearchFiles {
       }
     }
 
-    try (InputStream modelIn = new FileInputStream("es-ner-misc.bin")){
-      TokenNameFinderModel model = new TokenNameFinderModel(modelIn);
-    }
+    IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+    IndexSearcher searcher = new IndexSearcher(reader);
+    Analyzer analyzer = new SpanishAnalyzer2();
+    QueryParser parser = new QueryParser(field, analyzer);
 
     FileInputStream fis;
     try {
@@ -93,11 +104,17 @@ public class SearchFiles {
     NodeList text = d.getElementsByTagName("text");
 
     for(int i = 0; i < ids.getLength(); i++){
+//    for(int i = 0; i < 1; i++){
+      Builder query = new BooleanQuery.Builder();
+      String need = text.item(i).getTextContent();
+      String cleanNeed = cleanNeed(need);
+
+      cleanNeed = parseNames(cleanNeed, query, analyzer);
+      cleanNeed = publisherRecognizer(cleanNeed, query, analyzer, parser);
 
 
 
-
-      doPagingSearch(searcher, query, hitsPerPage, outputFile, ids.item(0).getTextContent());
+      doPagingSearch(searcher, query.build(), hitsPerPage, outputFile, ids.item(0).getTextContent());
     }
     
     /*IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
@@ -182,6 +199,88 @@ public class SearchFiles {
     reader.close();*/
     assert outputFile != null;
     outputFile.close();
+  }
+
+  private static void publisherRecognizer(String cleanNeed, Builder query, Analyzer analyzer, QueryParser parser) throws ParseException {
+    String[] words = cleanNeed.split(" ");
+
+    for (int i=0; i<words.length; i++) {
+      if(Objects.equals(words[i], "Universidad") || Objects.equals(words[i], "universidad")) {
+        if (Objects.equals(words[i + 1], "de") && Objects.equals(words[i + 2], "Zaragoza")) {
+          Query queryLine = parser.parse("Universidad de Zaragoza");
+          query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
+        }
+      }else if(Objects.equals(words[i], "Departamento") || Objects.equals(words[i], "departamento")) {
+        String queryString = "Departamento";
+        if (Objects.equals(words[i + 1], "de")) {
+          queryString = queryString +" de "+words[i+2];
+        }
+        Query queryLine = parser.parse(queryString);
+        query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
+
+      }else if(Objects.equals(words[i], "Area") || Objects.equals(words[i], "area")) {
+        String queryString = "Area";
+        if (Objects.equals(words[i + 1], "de")) {
+          queryString = queryString +" de "+words[i+2];
+        }
+        Query queryLine = parser.parse("departamento:"+queryString);
+        query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
+      }
+    }
+  }
+
+  private static String cleanNeed(String need) {
+    String result = "";
+    result = need.replace(".", "");
+    result = result.replace(",", "")
+            .replace("¿", "")
+            .replace("?", "")
+            .replace("¡", "")
+            .replace("!", "")
+            .replace("(", "")
+            .replace(")", "")
+            .replace("á", "a")
+            .replace("é", "e")
+            .replace("í", "i")
+            .replace("ó", "o")
+            .replace("ú", "u")
+            .replace("Á", "A")
+            .replace("É", "E")
+            .replace("Í", "I")
+            .replace("Ó", "O")
+            .replace("Ú", "U");
+    return result;
+  }
+
+  private static String parseNames(String need, Builder query, Analyzer analyzer) throws ParseException {
+    String result = need;
+    String[] words = result.split(" ");
+
+    String[] fields = {"autor", "director"};
+    BooleanClause.Occur[] flags = {BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD};
+
+    TokenNameFinderModel model = null;
+    try (InputStream personModel = new FileInputStream("es-ner-person.bin")){
+      model = new TokenNameFinderModel(personModel);
+    }
+    catch(Exception io ) { System.out.println("Error parsing names"); }
+
+    NameFinderME nameFinder = new NameFinderME(model);
+
+    Span[] names = nameFinder.find(words);
+    String[] names2 = Span.spansToStrings(names, words);
+
+    List<String> namesList = new ArrayList<>(Arrays.asList(names2));
+
+    if (namesList.size() != 0) {
+      for (String s : namesList) {
+        Query queryPerson = MultiFieldQueryParser.parse(s, fields, flags, analyzer);
+        query.add(new BoostQuery(queryPerson, (float) 1.8), BooleanClause.Occur.SHOULD);
+        result = result.replace(s, "");
+      }
+    }
+
+    return result;
   }
 
   /**
