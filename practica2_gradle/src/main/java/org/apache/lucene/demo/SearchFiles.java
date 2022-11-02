@@ -110,8 +110,10 @@ public class SearchFiles {
       String cleanNeed = cleanNeed(need);
 
       cleanNeed = parseNames(cleanNeed, query, analyzer);
-      cleanNeed = publisherRecognizer(cleanNeed, query, analyzer, parser);
-
+//      publisherRecognizer(cleanNeed, query, analyzer, parser);
+      Query queryLine = parser.parse("tipo:\"TAZ\\-TFG\"");
+      query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
+      System.out.println(queryLine);
 
 
       doPagingSearch(searcher, query.build(), hitsPerPage, outputFile, ids.item(0).getTextContent());
@@ -205,22 +207,22 @@ public class SearchFiles {
     String[] words = cleanNeed.split(" ");
 
     for (int i=0; i<words.length; i++) {
-      if(Objects.equals(words[i], "Universidad") || Objects.equals(words[i], "universidad")) {
-        if (Objects.equals(words[i + 1], "de") && Objects.equals(words[i + 2], "Zaragoza")) {
+      if(words[i].equals("Universidad") || words[i].equals("universidad")) {
+        if (words[i + 1].equals("de") && words[i + 2].equals("Zaragoza")) {
           Query queryLine = parser.parse("Universidad de Zaragoza");
           query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
         }
-      }else if(Objects.equals(words[i], "Departamento") || Objects.equals(words[i], "departamento")) {
+      } else if(words[i].equals("Departamento") || words[i].equals("departamento")) {
         String queryString = "Departamento";
-        if (Objects.equals(words[i + 1], "de")) {
+        if (words[i + 1].equals("de")) {
           queryString = queryString +" de "+words[i+2];
         }
         Query queryLine = parser.parse(queryString);
         query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
 
-      }else if(Objects.equals(words[i], "Area") || Objects.equals(words[i], "area")) {
+      } else if(words[i].equals("Area") || words[i].equals("area")) {
         String queryString = "Area";
-        if (Objects.equals(words[i + 1], "de")) {
+        if (words[i + 1].equals("de")) {
           queryString = queryString +" de "+words[i+2];
         }
         Query queryLine = parser.parse("departamento:"+queryString);
