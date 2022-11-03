@@ -32,6 +32,7 @@ import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.CharArraySet;
 import org.apache.lucene.analysis.StopFilter;
 import org.apache.lucene.analysis.WordlistLoader;
+import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer2;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.DoublePoint;
@@ -67,6 +68,7 @@ public class SearchFiles {
     String index = "index";
     String field = "contents";
     String infoNeeds = "";
+    String queries = "";
     OutputStreamWriter outputFile = null;
     int hitsPerPage = 9999999;
     
@@ -76,50 +78,52 @@ public class SearchFiles {
         i++;
       } else if ("-infoNeeds".equals(args[i])) {
         infoNeeds = args[i+1];
+        queries = args[i+1];
         i++;
       } else if ("-output".equals(args[i])) {
         outputFile = new OutputStreamWriter(new FileOutputStream(args[i+1]));
       }
     }
 
+//    IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+//    IndexSearcher searcher = new IndexSearcher(reader);
+//    Analyzer analyzer = new SpanishAnalyzer2();
+//    QueryParser parser = new QueryParser(field, analyzer);
+//
+//    FileInputStream fis;
+//    try {
+//      fis = new FileInputStream(infoNeeds);
+//    } catch (FileNotFoundException fnfe) {
+//      // at least on Windows, some temporary files raise this exception with an "access denied" message
+//      // checking if the file can be read doesn't help
+//      return;
+//    }
+//
+//    DocumentBuilderFactory dbf = DocumentBuilderFactory.newDefaultInstance();
+//    DocumentBuilder db = dbf.newDocumentBuilder();
+//    org.w3c.dom.Document d = db.parse(fis);
+//
+//    NodeList ids = d.getElementsByTagName("identifier");
+//    NodeList text = d.getElementsByTagName("text");
+//
+//    for(int i = 0; i < ids.getLength(); i++){
+////    for(int i = 0; i < 1; i++){
+//      System.out.println(ids.item(i).getTextContent());
+//      Builder query = new BooleanQuery.Builder();
+//      String need = text.item(i).getTextContent();
+//      String cleanNeed = cleanNeed(need);
+//
+//      cleanNeed = parseNames(cleanNeed, query, analyzer);
+////      publisherRecognizer(cleanNeed, query, analyzer, parser);
+//
+//
+//
+//      doPagingSearch(searcher, query.build(), hitsPerPage, outputFile, ids.item(0).getTextContent());
+//    }
+
+
+
     IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
-    IndexSearcher searcher = new IndexSearcher(reader);
-    Analyzer analyzer = new SpanishAnalyzer2();
-    QueryParser parser = new QueryParser(field, analyzer);
-
-    FileInputStream fis;
-    try {
-      fis = new FileInputStream(infoNeeds);
-    } catch (FileNotFoundException fnfe) {
-      // at least on Windows, some temporary files raise this exception with an "access denied" message
-      // checking if the file can be read doesn't help
-      return;
-    }
-
-    DocumentBuilderFactory dbf = DocumentBuilderFactory.newDefaultInstance();
-    DocumentBuilder db = dbf.newDocumentBuilder();
-    org.w3c.dom.Document d = db.parse(fis);
-
-    NodeList ids = d.getElementsByTagName("identifier");
-    NodeList text = d.getElementsByTagName("text");
-
-    for(int i = 0; i < ids.getLength(); i++){
-//    for(int i = 0; i < 1; i++){
-      Builder query = new BooleanQuery.Builder();
-      String need = text.item(i).getTextContent();
-      String cleanNeed = cleanNeed(need);
-
-      cleanNeed = parseNames(cleanNeed, query, analyzer);
-//      publisherRecognizer(cleanNeed, query, analyzer, parser);
-      Query queryLine = parser.parse("tipo:\"TAZ\\-TFG\"");
-      query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
-      System.out.println(queryLine);
-
-
-      doPagingSearch(searcher, query.build(), hitsPerPage, outputFile, ids.item(0).getTextContent());
-    }
-    
-    /*IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
     IndexSearcher searcher = new IndexSearcher(reader);
     Analyzer analyzer = new SpanishAnalyzer2();
 
@@ -127,6 +131,7 @@ public class SearchFiles {
 
     BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(queries), StandardCharsets.UTF_8));
     QueryParser parser = new QueryParser(field, analyzer);
+    QueryParser parser2 = new QueryParser(field, new WhitespaceAnalyzer());
     int nQuery = 1;
     while (true) {
 
@@ -140,6 +145,7 @@ public class SearchFiles {
         break;
       }
       Query query;
+      Builder queryBuilder = new BooleanQuery.Builder();
       int startSpatial = line.indexOf("spatial:");
 
       if (startSpatial != -1) {
@@ -182,8 +188,8 @@ public class SearchFiles {
         if (!line.equals("")) {
           Query normalQuery = parser.parse(line);
           query = new BooleanQuery.Builder()
-                  .add(spatialQuery, BooleanClause.Occur.SHOULD)
-                  .add(normalQuery, BooleanClause.Occur.SHOULD).build();
+                  .add(normalQuery, BooleanClause.Occur.SHOULD)
+                  .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
         }
         else {
           query = new BooleanQuery.Builder()
@@ -194,11 +200,47 @@ public class SearchFiles {
         query = parser.parse(line);
       }
 
+//      if (!line.equals("")) {
+////          Query normalQuery = parser.parse(line);
+//        String[] simple = line.split(" ");
+//        int i = 0;
+//        for (String s : simple) {
+//          if(s.indexOf(":",0) > 0) {
+//            if (s.indexOf("tipo",0) > 0) query = parser2.parse(s);
+//            else { query = parser.parse(s); }
+//            queryBuilder.add(query, BooleanClause.Occur.SHOULD).build();
+//          }
+//        }
+//        queryBuilder.add(spatialQuery, BooleanClause.Occur.SHOULD);
+//        query = queryBuilder.build();
+//      }
+//      else {
+//        query = new BooleanQuery.Builder()
+//                .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
+//      }
+//    }
+//      else {
+//      String[] simple = line.split(" ");
+//      for (String s : simple) {
+//        if(s.indexOf(":",0) >= 0) {
+//          if (s.indexOf("tipo",0) >= 0) {
+//            query = parser2.parse(s);
+//          }
+//          else {
+//            query = parser.parse(s);
+//          }
+//          queryBuilder.add(query, BooleanClause.Occur.SHOULD).build();
+//        }
+//      }
+//      query = queryBuilder.build();
+//    }
+
       System.out.println("Searching for: " + query.toString(field));
-      doPagingSearch(searcher, query, hitsPerPage, outputFile, nQuery);
+      System.out.println(query);
+      doPagingSearch(searcher, query, hitsPerPage, outputFile, Integer.toString(nQuery));
       nQuery++;
     }
-    reader.close();*/
+    reader.close();
     assert outputFile != null;
     outputFile.close();
   }
@@ -279,6 +321,7 @@ public class SearchFiles {
         Query queryPerson = MultiFieldQueryParser.parse(s, fields, flags, analyzer);
         query.add(new BoostQuery(queryPerson, (float) 1.8), BooleanClause.Occur.SHOULD);
         result = result.replace(s, "");
+        System.out.println(queryPerson);
       }
     }
 
