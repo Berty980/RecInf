@@ -111,8 +111,7 @@ public class SearchFiles {
       cleanNeed = parseDate(cleanNeed, query);
       parseText(cleanNeed, query, analyzer);
 
-//      System.out.println(cleanNeed);
-//      System.out.println(query.build());
+      System.out.println(query.build());
       doPagingSearch(searcher, query.build(), hitsPerPage, outputFile, ids.item(i).getTextContent());
     }
 
@@ -273,7 +272,7 @@ public class SearchFiles {
     if (namesList.size() != 0) {
       for (String s : namesList) {
         Query queryPerson = MultiFieldQueryParser.parse(s, fields, flags, analyzer);
-        query.add(new BoostQuery(queryPerson, (float) 1.8), BooleanClause.Occur.MUST);
+        query.add(queryPerson, BooleanClause.Occur.MUST);
         need = need.replace(" " + s, "");
       }
     }
@@ -303,7 +302,7 @@ public class SearchFiles {
       }
     }
     if(found)
-      query.add(new BoostQuery(aux.build(), (float) 1.5), BooleanClause.Occur.MUST);
+      query.add(aux.build(), BooleanClause.Occur.MUST);
     return need.replace("departamento ", "").replace("area ", "");
   }
 
@@ -334,7 +333,7 @@ public class SearchFiles {
       Query queryLine = parser.parse(field + "TESIS");
       aux.add(queryLine, BooleanClause.Occur.SHOULD);
     }
-    if(!empty) query.add(new BoostQuery(aux.build(), (float) 2), BooleanClause.Occur.MUST);
+    if(!empty) query.add(aux.build(), BooleanClause.Occur.MUST);
 
     return need.replace("trabajos ", "").replace(" grado", "")
             .replace(" master", "").replace("proyectos ", "")
@@ -357,7 +356,7 @@ public class SearchFiles {
         }
         } else if (words[i-1].equals("ultimos")){
           fecha1 = Integer.toString(Calendar.getInstance().get(Calendar.YEAR) - Integer.parseInt(words[i]));
-          need = need.replace(" " + fecha1, "");
+          need = need.replace(" " + words[i], "");
         } else if (words[i-1].equals("entre")){
           if (words[i+1].equals("y") && isNumeric(words[i+2])) {
             fecha1 = words[i];
@@ -368,7 +367,7 @@ public class SearchFiles {
         }
         if (fecha1 != null || fecha2 != null) {
           Query queryLine = TermRangeQuery.newStringRange(field, fecha1, fecha2, true, true);
-          query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.MUST);
+          query.add(queryLine, BooleanClause.Occur.MUST);
         }
       }
     }
@@ -398,13 +397,16 @@ public class SearchFiles {
     String[] words = need.split(" ");
     String[] tags = tagger.tag(words);
     for(int i = 0; i < tags.length; i++) {
-      if (tags[i].startsWith("N") || tags[i].startsWith("A") || tags[i].startsWith("Z")) {
+      if ((i+1 < tags.length) && tags[i].startsWith("N") && tags[i+1].startsWith("A")) {
+        Query queryWord = MultiFieldQueryParser.parse("\"" + words[i] + " " + words[i+1] + "\"", fields, flags, analyzer);
+        aux.add(queryWord, BooleanClause.Occur.SHOULD);
+        i++;
+      }
+      else if (tags[i].startsWith("N") || tags[i].startsWith("A") || tags[i].startsWith("Z")) {
         Query queryWord = MultiFieldQueryParser.parse(words[i], fields, flags, analyzer);
         aux.add(queryWord, BooleanClause.Occur.SHOULD);
       }
     }
-    System.out.println(Arrays.toString(tags));
-    System.out.println(Arrays.toString(words));
     query.add(aux.build(), BooleanClause.Occur.MUST);
   }
 
