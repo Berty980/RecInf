@@ -238,126 +238,6 @@ public class SearchFiles {
     outputFile.close();
   }
 
-  private static void parseText(String need, Builder query, Analyzer analyzer) throws ParseException {
-    String[] fields = {"descripcion", "pclave", "titulo"};
-    BooleanClause.Occur[] flags = {BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD};
-    Builder aux = new BooleanQuery.Builder();
-    POSModel model = null;
-    try (InputStream textModel = new FileInputStream("opennlp-es-maxent-pos-es.bin")) {
-      model = new POSModel(textModel);
-    } catch(Exception io ) { System.out.println("Error parsing names"); }
-    assert model != null;
-    POSTaggerME tagger = new POSTaggerME(model);
-
-    String[] words = need.split(" ");
-    String[] tags = tagger.tag(words);
-    for(int i = 0; i < tags.length; i++) {
-      if (tags[i].startsWith("N") || tags[i].startsWith("A")) {
-        Query queryWord = MultiFieldQueryParser.parse(words[i], fields, flags, analyzer);
-        aux.add(queryWord, BooleanClause.Occur.SHOULD);
-      }
-    }
-    query.add(aux.build(), BooleanClause.Occur.SHOULD);
-  }
-
-  private static String parseDate(String need, Builder query) {
-    String[] words = need.split(" ");
-    String field = "fecha";
-    for (int i=0; i<words.length; i++) {
-      if (isNumeric(words[i])) {
-        String fecha1 = null, fecha2 = null;
-
-        if (words[i-1].equals("desde")){
-          fecha1 = words[i];
-          if (words[i+1].equals("hasta") && isNumeric(words[i+2]))
-            fecha2 = words[i+2];
-        } else if (words[i-1].equals("ultimos")){
-          fecha1 = Integer.toString(Calendar.getInstance().get(Calendar.YEAR) - Integer.parseInt(words[i]));
-        } else if (words[i-1].equals("entre")){
-          if (words[i+1].equals("y") && isNumeric(words[i+2])) {
-            fecha1 = words[i];
-            fecha2 = words[i + 2];
-          }
-        }
-        if (fecha1 != null || fecha2 != null) {
-          Query queryLine = TermRangeQuery.newStringRange(field, fecha1, fecha2, true, true);
-          query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.MUST);
-        }
-      }
-    }
-    return need.replace("desde ", "")
-            .replace("hasta ", "").replace("ultimos ", "")
-            .replace("entre ", "").replace("años ", "");
-  }
-
-  private static boolean isNumeric(String word) {
-    if (word == null) { return false; }
-    try { Integer.parseInt(word); }
-    catch (NumberFormatException nfe) { return false; }
-    return true;
-  }
-
-  private static String parseType(String need, Builder query, QueryParser parser) throws ParseException {
-    List<String> words = Arrays.stream(need.split(" ")).toList();
-    String field = "tipo:", queryString = "";
-    Builder aux = new BooleanQuery.Builder();
-    boolean empty = true;
-    if(words.contains("trabajos")) {
-      empty = false;
-      if (words.contains("grado"))
-        queryString = field + "TAZ-TFG";
-      if (words.contains("master"))
-        queryString += " " + field + "TAZ-TFM";
-      if (queryString.equals(""))
-        queryString = field + "TAZ-TFM " + field + "TAZ-TFG " + field + "TAZ-PFC";
-
-      Query queryLine = parser.parse(queryString);
-      aux.add(queryLine, BooleanClause.Occur.SHOULD);
-    }
-    if(words.contains("proyectos")) {
-      empty = false;
-      Query queryLine = parser.parse(field + "TAZ-PFC");
-      aux.add(queryLine, BooleanClause.Occur.SHOULD);
-    }
-    if(words.contains("tesis")) {
-      empty = false;
-      Query queryLine = parser.parse(field + "TESIS");
-      aux.add(queryLine, BooleanClause.Occur.SHOULD);
-    }
-    if(!empty) query.add(new BoostQuery(aux.build(), (float) 2), BooleanClause.Occur.MUST);
-
-    return need.replace("trabajos ", "").replace(" grado", "")
-            .replace(" master", "").replace("proyectos ", "")
-            .replace(" tesis", "");
-  }
-
-  private static String parsePublisher(String need, Builder query, QueryParser parser) throws ParseException {
-    String[] words = need.split(" ");
-    String field = "departamento:";
-    Builder aux = new BooleanQuery.Builder();
-    boolean found = false;
-    for (int i=0; i<words.length; i++) {
-      if(words[i].equals("departamento")) {
-        if (words[i + 1].equals("de")) {
-          found = true;
-          String queryString = field + words[i+2];
-          Query queryLine = parser.parse(queryString);
-          aux.add(queryLine, BooleanClause.Occur.SHOULD);
-        }
-      } else if(words[i].equals("area")) {
-        if (words[i + 1].equals("de")) {
-          found = true;
-          String queryString = field + words[i+2];
-          Query queryLine = parser.parse(queryString);
-          aux.add(queryLine, BooleanClause.Occur.SHOULD);
-        }
-      }
-    }
-    if(found)
-      query.add(new BoostQuery(aux.build(), (float) 1.5), BooleanClause.Occur.MUST);
-    return need.replace("departamento ", "").replace("area ", "");
-  }
-
   private static String cleanNeed(String need) {
     String result = need.replace(".", "");
     return result.replace(",", "").replace("¿", "")
@@ -398,6 +278,126 @@ public class SearchFiles {
       }
     }
     return need;
+  }
+
+  private static String parsePublisher(String need, Builder query, QueryParser parser) throws ParseException {
+    String[] words = need.split(" ");
+    String field = "departamento:";
+    Builder aux = new BooleanQuery.Builder();
+    boolean found = false;
+    for (int i=0; i<words.length; i++) {
+      if(words[i].equals("departamento")) {
+        if (words[i + 1].equals("de")) {
+          found = true;
+          String queryString = field + words[i+2];
+          Query queryLine = parser.parse(queryString);
+          aux.add(queryLine, BooleanClause.Occur.SHOULD);
+        }
+      } else if(words[i].equals("area")) {
+        if (words[i + 1].equals("de")) {
+          found = true;
+          String queryString = field + words[i+2];
+          Query queryLine = parser.parse(queryString);
+          aux.add(queryLine, BooleanClause.Occur.SHOULD);
+        }
+      }
+    }
+    if(found)
+      query.add(new BoostQuery(aux.build(), (float) 1.5), BooleanClause.Occur.MUST);
+    return need.replace("departamento ", "").replace("area ", "");
+  }
+
+  private static void parseText(String need, Builder query, Analyzer analyzer) throws ParseException {
+    String[] fields = {"descripcion", "pclave", "titulo"};
+    BooleanClause.Occur[] flags = {BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD};
+    Builder aux = new BooleanQuery.Builder();
+    POSModel model = null;
+    try (InputStream textModel = new FileInputStream("opennlp-es-maxent-pos-es.bin")) {
+      model = new POSModel(textModel);
+    } catch(Exception io ) { System.out.println("Error parsing names"); }
+    assert model != null;
+    POSTaggerME tagger = new POSTaggerME(model);
+
+    String[] words = need.split(" ");
+    String[] tags = tagger.tag(words);
+    for(int i = 0; i < tags.length; i++) {
+      if (tags[i].startsWith("N") || tags[i].startsWith("A")) {
+        Query queryWord = MultiFieldQueryParser.parse(words[i], fields, flags, analyzer);
+        aux.add(queryWord, BooleanClause.Occur.SHOULD);
+      }
+    }
+    query.add(aux.build(), BooleanClause.Occur.SHOULD);
+  }
+
+  private static String parseType(String need, Builder query, QueryParser parser) throws ParseException {
+    List<String> words = Arrays.stream(need.split(" ")).toList();
+    String field = "tipo:", queryString = "";
+    Builder aux = new BooleanQuery.Builder();
+    boolean empty = true;
+    if(words.contains("trabajos")) {
+      empty = false;
+      if (words.contains("grado"))
+        queryString = field + "TAZ-TFG";
+      if (words.contains("master"))
+        queryString += " " + field + "TAZ-TFM";
+      if (queryString.equals(""))
+        queryString = field + "TAZ-TFM " + field + "TAZ-TFG " + field + "TAZ-PFC";
+
+      Query queryLine = parser.parse(queryString);
+      aux.add(queryLine, BooleanClause.Occur.SHOULD);
+    }
+    if(words.contains("proyectos")) {
+      empty = false;
+      Query queryLine = parser.parse(field + "TAZ-PFC");
+      aux.add(queryLine, BooleanClause.Occur.SHOULD);
+    }
+    if(words.contains("tesis")) {
+      empty = false;
+      Query queryLine = parser.parse(field + "TESIS");
+      aux.add(queryLine, BooleanClause.Occur.SHOULD);
+    }
+    if(!empty) query.add(new BoostQuery(aux.build(), (float) 2), BooleanClause.Occur.MUST);
+
+    return need.replace("trabajos ", "").replace(" grado", "")
+            .replace(" master", "").replace("proyectos ", "")
+            .replace(" tesis", "");
+  }
+
+  private static String parseDate(String need, Builder query) {
+    String[] words = need.split(" ");
+    String field = "fecha";
+    for (int i=0; i<words.length; i++) {
+      if (isNumeric(words[i])) {
+        String fecha1 = null, fecha2 = null;
+
+        if (words[i-1].equals("desde")){
+          fecha1 = words[i];
+          if (words[i+1].equals("hasta") && isNumeric(words[i+2]))
+            fecha2 = words[i+2];
+        } else if (words[i-1].equals("ultimos")){
+          fecha1 = Integer.toString(Calendar.getInstance().get(Calendar.YEAR) - Integer.parseInt(words[i]));
+        } else if (words[i-1].equals("entre")){
+          if (words[i+1].equals("y") && isNumeric(words[i+2])) {
+            fecha1 = words[i];
+            fecha2 = words[i + 2];
+          }
+        }
+        if (fecha1 != null || fecha2 != null) {
+          Query queryLine = TermRangeQuery.newStringRange(field, fecha1, fecha2, true, true);
+          query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.MUST);
+        }
+      }
+    }
+    return need.replace("desde ", "")
+            .replace("hasta ", "").replace("ultimos ", "")
+            .replace("entre ", "").replace("años ", "");
+  }
+
+  private static boolean isNumeric(String word) {
+    if (word == null) { return false; }
+    try { Integer.parseInt(word); }
+    catch (NumberFormatException nfe) { return false; }
+    return true;
   }
 
   /**
