@@ -307,28 +307,6 @@ public class SearchFiles {
     return need.replace("departamento ", "").replace("area ", "");
   }
 
-  private static void parseText(String need, Builder query, Analyzer analyzer) throws ParseException {
-    String[] fields = {"descripcion", "pclave", "titulo"};
-    BooleanClause.Occur[] flags = {BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD};
-    Builder aux = new BooleanQuery.Builder();
-    POSModel model = null;
-    try (InputStream textModel = new FileInputStream("opennlp-es-maxent-pos-es.bin")) {
-      model = new POSModel(textModel);
-    } catch(Exception io ) { System.out.println("Error parsing names"); }
-    assert model != null;
-    POSTaggerME tagger = new POSTaggerME(model);
-
-    String[] words = need.split(" ");
-    String[] tags = tagger.tag(words);
-    for(int i = 0; i < tags.length; i++) {
-      if (tags[i].startsWith("N") || tags[i].startsWith("A")) {
-        Query queryWord = MultiFieldQueryParser.parse(words[i], fields, flags, analyzer);
-        aux.add(queryWord, BooleanClause.Occur.SHOULD);
-      }
-    }
-    query.add(aux.build(), BooleanClause.Occur.SHOULD);
-  }
-
   private static String parseType(String need, Builder query, QueryParser parser) throws ParseException {
     List<String> words = Arrays.stream(need.split(" ")).toList();
     String field = "tipo:", queryString = "";
@@ -398,6 +376,28 @@ public class SearchFiles {
     try { Integer.parseInt(word); }
     catch (NumberFormatException nfe) { return false; }
     return true;
+  }
+
+  private static void parseText(String need, Builder query, Analyzer analyzer) throws ParseException {
+    String[] fields = {"descripcion", "pclave", "titulo"};
+    BooleanClause.Occur[] flags = {BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD};
+    Builder aux = new BooleanQuery.Builder();
+    POSModel model = null;
+    try (InputStream textModel = new FileInputStream("opennlp-es-maxent-pos-es.bin")) {
+      model = new POSModel(textModel);
+    } catch(Exception io ) { System.out.println("Error parsing names"); }
+    assert model != null;
+    POSTaggerME tagger = new POSTaggerME(model);
+
+    String[] words = need.split(" ");
+    String[] tags = tagger.tag(words);
+    for(int i = 0; i < tags.length; i++) {
+      if (tags[i].startsWith("N") || tags[i].startsWith("A")) {
+        Query queryWord = MultiFieldQueryParser.parse(words[i], fields, flags, analyzer);
+        aux.add(queryWord, BooleanClause.Occur.SHOULD);
+      }
+    }
+    query.add(aux.build(), BooleanClause.Occur.SHOULD);
   }
 
   /**
