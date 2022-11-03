@@ -18,24 +18,18 @@ package org.apache.lucene.demo;
  */
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import opennlp.tools.namefind.NameFinderME;
 import opennlp.tools.namefind.TokenNameFinderModel;
+import opennlp.tools.postag.POSModel;
+import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.util.Span;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.CharArraySet;
-import org.apache.lucene.analysis.StopFilter;
-import org.apache.lucene.analysis.WordlistLoader;
 import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer2;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.DoublePoint;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
@@ -48,8 +42,6 @@ import org.w3c.dom.NodeList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-
-import static java.lang.Double.NEGATIVE_INFINITY;
 
 /** Simple command-line based search demo. */
 public class SearchFiles {
@@ -68,7 +60,6 @@ public class SearchFiles {
     String index = "index";
     String field = "contents";
     String infoNeeds = "";
-    String queries = "";
     OutputStreamWriter outputFile = null;
     int hitsPerPage = 9999999;
     
@@ -78,227 +69,310 @@ public class SearchFiles {
         i++;
       } else if ("-infoNeeds".equals(args[i])) {
         infoNeeds = args[i+1];
-        queries = args[i+1];
         i++;
       } else if ("-output".equals(args[i])) {
         outputFile = new OutputStreamWriter(new FileOutputStream(args[i+1]));
       }
     }
 
-//    IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
-//    IndexSearcher searcher = new IndexSearcher(reader);
-//    Analyzer analyzer = new SpanishAnalyzer2();
-//    QueryParser parser = new QueryParser(field, analyzer);
-//
-//    FileInputStream fis;
-//    try {
-//      fis = new FileInputStream(infoNeeds);
-//    } catch (FileNotFoundException fnfe) {
-//      // at least on Windows, some temporary files raise this exception with an "access denied" message
-//      // checking if the file can be read doesn't help
-//      return;
-//    }
-//
-//    DocumentBuilderFactory dbf = DocumentBuilderFactory.newDefaultInstance();
-//    DocumentBuilder db = dbf.newDocumentBuilder();
-//    org.w3c.dom.Document d = db.parse(fis);
-//
-//    NodeList ids = d.getElementsByTagName("identifier");
-//    NodeList text = d.getElementsByTagName("text");
-//
-//    for(int i = 0; i < ids.getLength(); i++){
-////    for(int i = 0; i < 1; i++){
-//      System.out.println(ids.item(i).getTextContent());
-//      Builder query = new BooleanQuery.Builder();
-//      String need = text.item(i).getTextContent();
-//      String cleanNeed = cleanNeed(need);
-//
-//      cleanNeed = parseNames(cleanNeed, query, analyzer);
-////      publisherRecognizer(cleanNeed, query, analyzer, parser);
-//
-//
-//
-//      doPagingSearch(searcher, query.build(), hitsPerPage, outputFile, ids.item(0).getTextContent());
-//    }
-
-
-
     IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
     IndexSearcher searcher = new IndexSearcher(reader);
     Analyzer analyzer = new SpanishAnalyzer2();
-
-
-
-    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(queries), StandardCharsets.UTF_8));
     QueryParser parser = new QueryParser(field, analyzer);
     QueryParser parser2 = new QueryParser(field, new WhitespaceAnalyzer());
-    int nQuery = 1;
-    while (true) {
 
-      String line = in.readLine();
-      if (line == null) {
-        break;
-      }
-
-      line = line.trim();
-      if (line.length() == 0) {
-        break;
-      }
-      Query query;
-      Builder queryBuilder = new BooleanQuery.Builder();
-      int startSpatial = line.indexOf("spatial:");
-
-      if (startSpatial != -1) {
-        String spatial = "";
-        int endSpatial = line.indexOf(" ", startSpatial);
-        if (endSpatial == -1)
-          spatial = line.substring(startSpatial);
-        else
-          spatial = line.substring(startSpatial, endSpatial);
-
-        // Spatial query
-        int separator = spatial.indexOf(":");
-        int auxSep = separator;
-        Double[] coords = new Double[4];
-        for(int i = 0; i < 3; i++) {
-          separator = spatial.indexOf(',', auxSep+1);
-          coords[i] = Double.parseDouble(spatial.substring(auxSep+1, separator));
-          auxSep = separator;
-        }
-        coords[3] = Double.parseDouble(spatial.substring(separator+1));
-
-        Query westRangeQuery = DoublePoint.newRangeQuery("west",
-                                  Double.NEGATIVE_INFINITY, coords[1]);
-        Query eastRangeQuery = DoublePoint.newRangeQuery("east",
-                                  coords[0], Double.POSITIVE_INFINITY);
-        Query southRangeQuery = DoublePoint.newRangeQuery("south",
-                                  Double.NEGATIVE_INFINITY, coords[3]);
-        Query northRangeQuery = DoublePoint.newRangeQuery("north",
-                                  coords[2], Double.POSITIVE_INFINITY);
-        BooleanQuery spatialQuery = new BooleanQuery.Builder()
-                .add(westRangeQuery, BooleanClause.Occur.MUST)
-                .add(eastRangeQuery, BooleanClause.Occur.MUST)
-                .add(northRangeQuery, BooleanClause.Occur.MUST)
-                .add(southRangeQuery, BooleanClause.Occur.MUST).build();
-
-        if(endSpatial == -1)
-          line = line.substring(0,startSpatial);
-        else
-          line = line.substring(0,startSpatial) + line.substring(endSpatial+1);
-        if (!line.equals("")) {
-          Query normalQuery = parser.parse(line);
-          query = new BooleanQuery.Builder()
-                  .add(normalQuery, BooleanClause.Occur.SHOULD)
-                  .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
-        }
-        else {
-          query = new BooleanQuery.Builder()
-                  .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
-        }
-      }
-      else {
-        query = parser.parse(line);
-      }
-
-//      if (!line.equals("")) {
-////          Query normalQuery = parser.parse(line);
-//        String[] simple = line.split(" ");
-//        int i = 0;
-//        for (String s : simple) {
-//          if(s.indexOf(":",0) > 0) {
-//            if (s.indexOf("tipo",0) > 0) query = parser2.parse(s);
-//            else { query = parser.parse(s); }
-//            queryBuilder.add(query, BooleanClause.Occur.SHOULD).build();
-//          }
-//        }
-//        queryBuilder.add(spatialQuery, BooleanClause.Occur.SHOULD);
-//        query = queryBuilder.build();
-//      }
-//      else {
-//        query = new BooleanQuery.Builder()
-//                .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
-//      }
-//    }
-//      else {
-//      String[] simple = line.split(" ");
-//      for (String s : simple) {
-//        if(s.indexOf(":",0) >= 0) {
-//          if (s.indexOf("tipo",0) >= 0) {
-//            query = parser2.parse(s);
-//          }
-//          else {
-//            query = parser.parse(s);
-//          }
-//          queryBuilder.add(query, BooleanClause.Occur.SHOULD).build();
-//        }
-//      }
-//      query = queryBuilder.build();
-//    }
-
-      System.out.println("Searching for: " + query.toString(field));
-      System.out.println(query);
-      doPagingSearch(searcher, query, hitsPerPage, outputFile, Integer.toString(nQuery));
-      nQuery++;
+    FileInputStream fis;
+    try {
+      fis = new FileInputStream(infoNeeds);
+    } catch (FileNotFoundException fnfe) {
+      // at least on Windows, some temporary files raise this exception with an "access denied" message
+      // checking if the file can be read doesn't help
+      return;
     }
+
+    DocumentBuilderFactory dbf = DocumentBuilderFactory.newDefaultInstance();
+    DocumentBuilder db = dbf.newDocumentBuilder();
+    org.w3c.dom.Document d = db.parse(fis);
+
+    NodeList ids = d.getElementsByTagName("identifier");
+    NodeList text = d.getElementsByTagName("text");
+
+    for(int i = 0; i < ids.getLength(); i++){
+      System.out.println(ids.item(i).getTextContent());
+      Builder query = new BooleanQuery.Builder();
+      String need = text.item(i).getTextContent();
+
+      String cleanNeed = cleanNeed(need);
+
+      cleanNeed = parseNames(cleanNeed, query, analyzer);
+      cleanNeed = cleanNeed.toLowerCase();
+      cleanNeed = parsePublisher(cleanNeed, query, parser);
+      cleanNeed = parseType(cleanNeed, query, parser2);
+      cleanNeed = parseDate(cleanNeed, query);
+      parseText(cleanNeed, query, analyzer);
+
+      System.out.println(cleanNeed);
+      System.out.println(query.build());
+      doPagingSearch(searcher, query.build(), hitsPerPage, outputFile, ids.item(i).getTextContent());
+    }
+
+//    IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
+//    IndexSearcher searcher = new IndexSearcher(reader);
+//    Analyzer analyzer = new SpanishAnalyzer2();
+//
+//
+//
+//    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(queries), StandardCharsets.UTF_8));
+//    QueryParser parser = new QueryParser(field, analyzer);
+//    QueryParser parser2 = new QueryParser(field, new WhitespaceAnalyzer());
+//    int nQuery = 1;
+//    while (true) {
+//
+//      String line = in.readLine();
+//      if (line == null) {
+//        break;
+//      }
+//
+//      line = line.trim();
+//      if (line.length() == 0) {
+//        break;
+//      }
+//      Query query;
+//      Builder queryBuilder = new BooleanQuery.Builder();
+//      int startSpatial = line.indexOf("spatial:");
+//
+//      if (startSpatial != -1) {
+//        String spatial = "";
+//        int endSpatial = line.indexOf(" ", startSpatial);
+//        if (endSpatial == -1)
+//          spatial = line.substring(startSpatial);
+//        else
+//          spatial = line.substring(startSpatial, endSpatial);
+//
+//        // Spatial query
+//        int separator = spatial.indexOf(":");
+//        int auxSep = separator;
+//        Double[] coords = new Double[4];
+//        for(int i = 0; i < 3; i++) {
+//          separator = spatial.indexOf(',', auxSep+1);
+//          coords[i] = Double.parseDouble(spatial.substring(auxSep+1, separator));
+//          auxSep = separator;
+//        }
+//        coords[3] = Double.parseDouble(spatial.substring(separator+1));
+//
+//        Query westRangeQuery = DoublePoint.newRangeQuery("west",
+//                                  Double.NEGATIVE_INFINITY, coords[1]);
+//        Query eastRangeQuery = DoublePoint.newRangeQuery("east",
+//                                  coords[0], Double.POSITIVE_INFINITY);
+//        Query southRangeQuery = DoublePoint.newRangeQuery("south",
+//                                  Double.NEGATIVE_INFINITY, coords[3]);
+//        Query northRangeQuery = DoublePoint.newRangeQuery("north",
+//                                  coords[2], Double.POSITIVE_INFINITY);
+//        BooleanQuery spatialQuery = new BooleanQuery.Builder()
+//                .add(westRangeQuery, BooleanClause.Occur.MUST)
+//                .add(eastRangeQuery, BooleanClause.Occur.MUST)
+//                .add(northRangeQuery, BooleanClause.Occur.MUST)
+//                .add(southRangeQuery, BooleanClause.Occur.MUST).build();
+//
+//        if(endSpatial == -1)
+//          line = line.substring(0,startSpatial);
+//        else
+//          line = line.substring(0,startSpatial) + line.substring(endSpatial+1);
+//        if (!line.equals("")) {
+//          Query normalQuery = parser.parse(line);
+//          query = new BooleanQuery.Builder()
+//                  .add(normalQuery, BooleanClause.Occur.SHOULD)
+//                  .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
+//        }
+//        else {
+//          query = new BooleanQuery.Builder()
+//                  .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
+//        }
+//      }
+//      else {
+//        query = parser.parse(line);
+//      }
+//
+////      if (!line.equals("")) {
+//////          Query normalQuery = parser.parse(line);
+////        String[] simple = line.split(" ");
+////        int i = 0;
+////        for (String s : simple) {
+////          if(s.indexOf(":",0) > 0) {
+////            if (s.indexOf("tipo",0) > 0) query = parser2.parse(s);
+////            else { query = parser.parse(s); }
+////            queryBuilder.add(query, BooleanClause.Occur.SHOULD).build();
+////          }
+////        }
+////        queryBuilder.add(spatialQuery, BooleanClause.Occur.SHOULD);
+////        query = queryBuilder.build();
+////      }
+////      else {
+////        query = new BooleanQuery.Builder()
+////                .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
+////      }
+////    }
+////      else {
+////      String[] simple = line.split(" ");
+////      for (String s : simple) {
+////        if(s.indexOf(":",0) >= 0) {
+////          if (s.indexOf("tipo",0) >= 0) {
+////            query = parser2.parse(s);
+////          }
+////          else {
+////            query = parser.parse(s);
+////          }
+////          queryBuilder.add(query, BooleanClause.Occur.SHOULD).build();
+////        }
+////      }
+////      query = queryBuilder.build();
+////    }
+//
+//      System.out.println("Searching for: " + query.toString(field));
+//      System.out.println(query);
+//      doPagingSearch(searcher, query, hitsPerPage, outputFile, Integer.toString(nQuery));
+//      nQuery++;
+//    }
     reader.close();
     assert outputFile != null;
     outputFile.close();
   }
 
-  private static void publisherRecognizer(String cleanNeed, Builder query, Analyzer analyzer, QueryParser parser) throws ParseException {
-    String[] words = cleanNeed.split(" ");
+  private static void parseText(String need, Builder query, Analyzer analyzer) throws ParseException {
+    String[] fields = {"descripcion", "pclave", "titulo"};
+    BooleanClause.Occur[] flags = {BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD};
+    Builder aux = new BooleanQuery.Builder();
+    POSModel model = null;
+    try (InputStream textModel = new FileInputStream("opennlp-es-maxent-pos-es.bin")) {
+      model = new POSModel(textModel);
+    } catch(Exception io ) { System.out.println("Error parsing names"); }
+    assert model != null;
+    POSTaggerME tagger = new POSTaggerME(model);
 
-    for (int i=0; i<words.length; i++) {
-      if(words[i].equals("Universidad") || words[i].equals("universidad")) {
-        if (words[i + 1].equals("de") && words[i + 2].equals("Zaragoza")) {
-          Query queryLine = parser.parse("Universidad de Zaragoza");
-          query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
-        }
-      } else if(words[i].equals("Departamento") || words[i].equals("departamento")) {
-        String queryString = "Departamento";
-        if (words[i + 1].equals("de")) {
-          queryString = queryString +" de "+words[i+2];
-        }
-        Query queryLine = parser.parse(queryString);
-        query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
-
-      } else if(words[i].equals("Area") || words[i].equals("area")) {
-        String queryString = "Area";
-        if (words[i + 1].equals("de")) {
-          queryString = queryString +" de "+words[i+2];
-        }
-        Query queryLine = parser.parse("departamento:"+queryString);
-        query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
+    String[] words = need.split(" ");
+    String[] tags = tagger.tag(words);
+    for(int i = 0; i < tags.length; i++) {
+      if (tags[i].startsWith("N") || tags[i].startsWith("A")) {
+        Query queryWord = MultiFieldQueryParser.parse(words[i], fields, flags, analyzer);
+        aux.add(queryWord, BooleanClause.Occur.SHOULD);
       }
     }
+    query.add(aux.build(), BooleanClause.Occur.SHOULD);
+  }
+
+  private static String parseDate(String need, Builder query) {
+    String[] words = need.split(" ");
+    String field = "fecha";
+    for (int i=0; i<words.length; i++) {
+      if (isNumeric(words[i])) {
+        String fecha1 = null, fecha2 = null;
+
+        if (words[i-1].equals("desde")){
+          fecha1 = words[i];
+          if (words[i+1].equals("hasta") && isNumeric(words[i+2]))
+            fecha2 = words[i+2];
+        } else if (words[i-1].equals("ultimos")){
+          fecha1 = Integer.toString(Calendar.getInstance().get(Calendar.YEAR) - Integer.parseInt(words[i]));
+        } else if (words[i-1].equals("entre")){
+          if (words[i+1].equals("y") && isNumeric(words[i+2])) {
+            fecha1 = words[i];
+            fecha2 = words[i + 2];
+          }
+        }
+        if (fecha1 != null || fecha2 != null) {
+          Query queryLine = TermRangeQuery.newStringRange(field, fecha1, fecha2, true, true);
+          query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.MUST);
+        }
+      }
+    }
+    return need.replace("desde ", "")
+            .replace("hasta ", "").replace("ultimos ", "")
+            .replace("entre ", "").replace("años ", "");
+  }
+
+  private static boolean isNumeric(String word) {
+    if (word == null) { return false; }
+    try { Integer.parseInt(word); }
+    catch (NumberFormatException nfe) { return false; }
+    return true;
+  }
+
+  private static String parseType(String need, Builder query, QueryParser parser) throws ParseException {
+    List<String> words = Arrays.stream(need.split(" ")).toList();
+    String field = "tipo:", queryString = "";
+    Builder aux = new BooleanQuery.Builder();
+    boolean empty = true;
+    if(words.contains("trabajos")) {
+      empty = false;
+      if (words.contains("grado"))
+        queryString = field + "TAZ-TFG";
+      if (words.contains("master"))
+        queryString += " " + field + "TAZ-TFM";
+      if (queryString.equals(""))
+        queryString = field + "TAZ-TFM " + field + "TAZ-TFG " + field + "TAZ-PFC";
+
+      Query queryLine = parser.parse(queryString);
+      aux.add(queryLine, BooleanClause.Occur.SHOULD);
+    }
+    if(words.contains("proyectos")) {
+      empty = false;
+      Query queryLine = parser.parse(field + "TAZ-PFC");
+      aux.add(queryLine, BooleanClause.Occur.SHOULD);
+    }
+    if(words.contains("tesis")) {
+      empty = false;
+      Query queryLine = parser.parse(field + "TESIS");
+      aux.add(queryLine, BooleanClause.Occur.SHOULD);
+    }
+    if(!empty) query.add(new BoostQuery(aux.build(), (float) 2), BooleanClause.Occur.MUST);
+
+    return need.replace("trabajos ", "").replace(" grado", "")
+            .replace(" master", "").replace("proyectos ", "")
+            .replace(" tesis", "");
+  }
+
+  private static String parsePublisher(String need, Builder query, QueryParser parser) throws ParseException {
+    String[] words = need.split(" ");
+    String field = "departamento:";
+    Builder aux = new BooleanQuery.Builder();
+    boolean found = false;
+    for (int i=0; i<words.length; i++) {
+      if(words[i].equals("departamento")) {
+        if (words[i + 1].equals("de")) {
+          found = true;
+          String queryString = field + words[i+2];
+          Query queryLine = parser.parse(queryString);
+          aux.add(queryLine, BooleanClause.Occur.SHOULD);
+        }
+      } else if(words[i].equals("area")) {
+        if (words[i + 1].equals("de")) {
+          found = true;
+          String queryString = field + words[i+2];
+          Query queryLine = parser.parse(queryString);
+          aux.add(queryLine, BooleanClause.Occur.SHOULD);
+        }
+      }
+    }
+    if(found)
+      query.add(new BoostQuery(aux.build(), (float) 1.5), BooleanClause.Occur.MUST);
+    return need.replace("departamento ", "").replace("area ", "");
   }
 
   private static String cleanNeed(String need) {
-    String result = "";
-    result = need.replace(".", "");
-    result = result.replace(",", "")
-            .replace("¿", "")
-            .replace("?", "")
-            .replace("¡", "")
-            .replace("!", "")
-            .replace("(", "")
-            .replace(")", "")
-            .replace("á", "a")
-            .replace("é", "e")
-            .replace("í", "i")
-            .replace("ó", "o")
-            .replace("ú", "u")
-            .replace("Á", "A")
-            .replace("É", "E")
-            .replace("Í", "I")
-            .replace("Ó", "O")
+    String result = need.replace(".", "");
+    return result.replace(",", "").replace("¿", "")
+            .replace("?", "").replace("¡", "")
+            .replace("!", "").replace("(", "")
+            .replace(")", "").replace("á", "a")
+            .replace("é", "e").replace("í", "i")
+            .replace("ó", "o").replace("ú", "u")
+            .replace("Á", "A").replace("É", "E")
+            .replace("Í", "I").replace("Ó", "O")
             .replace("Ú", "U");
-    return result;
   }
 
   private static String parseNames(String need, Builder query, Analyzer analyzer) throws ParseException {
-    String result = need;
-    String[] words = result.split(" ");
+    String[] words = need.split(" ");
 
     String[] fields = {"autor", "director"};
     BooleanClause.Occur[] flags = {BooleanClause.Occur.SHOULD, BooleanClause.Occur.SHOULD};
@@ -309,23 +383,21 @@ public class SearchFiles {
     }
     catch(Exception io ) { System.out.println("Error parsing names"); }
 
+    assert model != null;
     NameFinderME nameFinder = new NameFinderME(model);
 
     Span[] names = nameFinder.find(words);
     String[] names2 = Span.spansToStrings(names, words);
-
     List<String> namesList = new ArrayList<>(Arrays.asList(names2));
 
     if (namesList.size() != 0) {
       for (String s : namesList) {
         Query queryPerson = MultiFieldQueryParser.parse(s, fields, flags, analyzer);
-        query.add(new BoostQuery(queryPerson, (float) 1.8), BooleanClause.Occur.SHOULD);
-        result = result.replace(s, "");
-        System.out.println(queryPerson);
+        query.add(new BoostQuery(queryPerson, (float) 1.8), BooleanClause.Occur.MUST);
+        need = need.replace(" " + s, "");
       }
     }
-
-    return result;
+    return need;
   }
 
   /**
@@ -343,21 +415,18 @@ public class SearchFiles {
     // Collect enough docs to show 5 pages
     TopDocs results = searcher.search(query, 5 * hitsPerPage);
     ScoreDoc[] hits = results.scoreDocs;
-    
     int numTotalHits = Math.toIntExact(results.totalHits.value);
     System.out.println(numTotalHits + " total matching documents");
 
     for (int i = 0; i < hits.length; i++) {
-
       Document doc = searcher.doc(hits[i].doc);
       String path = doc.get("path");
       if (path != null) {
         int lastSlash = path.lastIndexOf('\\');
         String out = nQuery + "\t" + path.substring(lastSlash + 1) + "\n";
         outputFile.write(out);
-      } else {
-        System.out.println((i+1) + ". " + "No path for this document");
-      }
+      } else
+          System.out.println((i+1) + ". " + "No path for this document");
       outputFile.flush();
     }
   }
