@@ -111,8 +111,8 @@ public class SearchFiles {
       cleanNeed = parseDate(cleanNeed, query);
       parseText(cleanNeed, query, analyzer);
 
-      System.out.println(cleanNeed);
-      System.out.println(query.build());
+//      System.out.println(cleanNeed);
+//      System.out.println(query.build());
       doPagingSearch(searcher, query.build(), hitsPerPage, outputFile, ids.item(i).getTextContent());
     }
 
@@ -348,16 +348,22 @@ public class SearchFiles {
       if (isNumeric(words[i])) {
         String fecha1 = null, fecha2 = null;
 
-        if (words[i-1].equals("desde")){
+        if (words[i-1].equals("desde")) {
           fecha1 = words[i];
-          if (words[i+1].equals("hasta") && isNumeric(words[i+2]))
-            fecha2 = words[i+2];
+          need = need.replace(" " + fecha1, "");
+          if (words[i + 1].equals("hasta") && isNumeric(words[i + 2])) {
+            fecha2 = words[i + 2];
+            need = need.replace(" " + fecha2, "");
+        }
         } else if (words[i-1].equals("ultimos")){
           fecha1 = Integer.toString(Calendar.getInstance().get(Calendar.YEAR) - Integer.parseInt(words[i]));
+          need = need.replace(" " + fecha1, "");
         } else if (words[i-1].equals("entre")){
           if (words[i+1].equals("y") && isNumeric(words[i+2])) {
             fecha1 = words[i];
             fecha2 = words[i + 2];
+            need = need.replace(" " + fecha1, "");
+            need = need.replace(" " + fecha2, "");
           }
         }
         if (fecha1 != null || fecha2 != null) {
@@ -392,12 +398,14 @@ public class SearchFiles {
     String[] words = need.split(" ");
     String[] tags = tagger.tag(words);
     for(int i = 0; i < tags.length; i++) {
-      if (tags[i].startsWith("N") || tags[i].startsWith("A")) {
+      if (tags[i].startsWith("N") || tags[i].startsWith("A") || tags[i].startsWith("Z")) {
         Query queryWord = MultiFieldQueryParser.parse(words[i], fields, flags, analyzer);
         aux.add(queryWord, BooleanClause.Occur.SHOULD);
       }
     }
-    query.add(aux.build(), BooleanClause.Occur.SHOULD);
+    System.out.println(Arrays.toString(tags));
+    System.out.println(Arrays.toString(words));
+    query.add(aux.build(), BooleanClause.Occur.MUST);
   }
 
   /**
