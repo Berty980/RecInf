@@ -32,6 +32,7 @@ import org.apache.lucene.analysis.es.SpanishAnalyzer2;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
 import org.apache.lucene.index.IndexReader;
+import org.apache.lucene.index.Term;
 import org.apache.lucene.queryparser.classic.MultiFieldQueryParser;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
@@ -308,30 +309,30 @@ public class SearchFiles {
 
   private static String parseType(String need, Builder query, QueryParser parser) throws ParseException {
     List<String> words = Arrays.stream(need.split(" ")).toList();
-    String field = "tipo:", queryString = "";
+    String field = "tipo", queryString = "";
     Builder aux = new BooleanQuery.Builder();
     boolean empty = true;
     if(words.contains("trabajos")) {
       empty = false;
       if (words.contains("grado"))
-        queryString = field + "TAZ-TFG";
+        aux.add(new TermQuery(new Term(field, "TAZ-TFG")), BooleanClause.Occur.SHOULD);
       if (words.contains("master"))
-        queryString += " " + field + "TAZ-TFM";
-      if (queryString.equals(""))
-        queryString = field + "TAZ-TFM " + field + "TAZ-TFG " + field + "TAZ-PFC";
-
-      Query queryLine = parser.parse(queryString);
-      aux.add(queryLine, BooleanClause.Occur.SHOULD);
+        aux.add(new TermQuery(new Term(field, "TAZ-TFM")), BooleanClause.Occur.SHOULD);
+      if (!words.contains("grado") && !words.contains("master")) {
+        aux.add(new TermQuery(new Term(field, "TAZ-TFG")), BooleanClause.Occur.SHOULD);
+        aux.add(new TermQuery(new Term(field, "TAZ-TFM")), BooleanClause.Occur.SHOULD);
+        aux.add(new TermQuery(new Term(field, "TAZ-PFC")), BooleanClause.Occur.SHOULD);
+      }
+      System.out.println(aux.build());
     }
     if(words.contains("proyectos")) {
       empty = false;
-      Query queryLine = parser.parse(field + "TAZ-PFC");
-      aux.add(queryLine, BooleanClause.Occur.SHOULD);
+      aux.add(new TermQuery(new Term(field, "TAZ-PFC")), BooleanClause.Occur.SHOULD);
     }
     if(words.contains("tesis")) {
       empty = false;
-      Query queryLine = parser.parse(field + "TESIS");
-      aux.add(queryLine, BooleanClause.Occur.SHOULD);
+      aux.add(new TermQuery(new Term(field, "TESIS")), BooleanClause.Occur.SHOULD);
+
     }
     if(!empty) query.add(aux.build(), BooleanClause.Occur.MUST);
 
