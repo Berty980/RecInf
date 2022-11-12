@@ -17,24 +17,8 @@ package org.apache.lucene.demo;
  * limitations under the License.
  */
 
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
-import org.apache.lucene.document.*;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig.OpenMode;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.Term;
-import org.apache.lucene.store.Directory;
-import org.apache.lucene.store.FSDirectory;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
-import java.nio.file.Paths;
 import java.util.*;
 
 /** Index all text files under a directory.
@@ -43,101 +27,196 @@ import java.util.*;
  * Run it with no command-line arguments for usage information.
  */
 public class Evaluation {
-  
+
   private Evaluation() {}
 
   /** Index all text files under a directory. */
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws FileNotFoundException {
     String usage = """
-            java org.apache.lucene.demo.Evaluation -qrels <qrelsFileName> -results <resultsFileName> -output <outputFileName>
-
-            This indexes the documents in DOCS_PATH, creating a Lucene indexin INDEX_PATH that can be searched with SearchFiles""";
+            Evaluation [-qrels QRELS_FILENAME] [-results RESULTS_FILENAME] [-output OUTPUT_FILENAME]
+            """;
     String qrelsPath = null;
     String resultsPath = null;
-    String outputPath = null;
-    boolean create = true;
-    for (int i = 0; i < args.length; i++) {
+    OutputStreamWriter outputFile = null;
+    for(int i=0;i<args.length;i++) {
       if ("-qrels".equals(args[i])) {
-        qrelsPath = args[i + 1];
+        qrelsPath = args[i+1];
         i++;
       } else if ("-results".equals(args[i])) {
-        resultsPath = args[i + 1];
+        resultsPath = args[i+1];
         i++;
       } else if ("-output".equals(args[i])) {
-        outputPath = args[i + 1];
+        outputFile = new OutputStreamWriter(new FileOutputStream(args[i+1]));
+        i++;
       }
     }
 
-    if (qrelsPath == null || resultsPath == null || outputPath == null) {
+    if (qrelsPath == null || resultsPath == null || outputFile == null) {
       System.err.println("Usage: " + usage);
       System.exit(1);
     }
 
-    String[] need;
-    String[] doc;
-    String[] rel;
-
-    File archivo = new File(qrelsPath);
-    FileReader fr = null;
+    BufferedReader qrelsReader;
     try {
-      fr = new FileReader(archivo);
-    } catch (FileNotFoundException e) {
-      System.err.println("No se ha encontrado el fichero " + qrelsPath);
-      System.exit(1);
+      qrelsReader = new BufferedReader(new InputStreamReader(new FileInputStream(qrelsPath)));
+    } catch (FileNotFoundException fnfe) {
+      // at least on Windows, some temporary files raise this exception with an "access denied" message
+      // checking if the file can be read doesn't help
+      return;
     }
-    BufferedReader br = new BufferedReader(fr);
-    File archivo2 = new File(resultsPath);
-    FileReader fr2 = null;
+
+    BufferedReader resultsReader;
     try {
-      fr2 = new FileReader(archivo2);
-    } catch (FileNotFoundException e) {
-      System.err.println("No se ha encontrado el fichero " + qrelsPath);
-      System.exit(1);
+      resultsReader = new BufferedReader(new InputStreamReader(new FileInputStream(resultsPath)));
+    } catch (FileNotFoundException fnfe) {
+      // at least on Windows, some temporary files raise this exception with an "access denied" message
+      // checking if the file can be read doesn't help
+      return;
     }
-    BufferedReader br2 = new BufferedReader(fr2);
 
-    String linea = null;
-    String key = "";
-    List<String> val = new ArrayList<>();
-    HashMap<String,List<String>> relevantes = new HashMap<>();
-    int i = 0;
-    String[] aux;
-    // HashMap con las necesidades de información como clave
-    // y la lista de documentos relevantes como valor
-    while((linea = br.readLine()) != null) {
-      aux = linea.split("\t");
-      if (i == 0) key = aux[0];
-      if (aux[2].equals("1")) {
-        if (!aux[0].equals(key)) {
-          List<String> clone = new ArrayList<>(val);
-          relevantes.put(key, clone);
-          val.clear();
-          key = aux[0];
-        }
-        val.add(aux[1]);
-      }
-      i++;
-    }
-    relevantes.put(key, val);
+    HashMap<String, List<String>> qrelsTable;
+    HashMap<String, HashMap<String, Double>> resultsStats;
 
-    // Primer elemento del valor: doc. totales
-    // Segundo elemento del valor: doc. relevantes
-    HashMap<String, List<Integer>> est = new HashMap<>();
-    key = "";
-    //
-    while((linea = br2.readLine()) != null) {
-      aux = linea.split("\t");
-      if(relevantes.containsKey(aux[0])){
-        if(!aux[0].equals(key)) {
-          List<Integer> l = new ArrayList<>();
-          l.add(1); l.add(0);
-          est.put(aux[0], l);
-          key = aux[0];
-        } else { est.get(aux[0]).set(0,est.get(aux[0]).get(0) + 1); }
+    //Procesar fichero de relevancias
+    qrelsTable = readQRels(qrelsReader);
+    //Procesar fichero de resultados
+    resultsStats = readResults(qrelsTable, resultsReader);
+    //Calcular estadisticas
+//    makeStats(resultsStats, outputFile);
 
-        if (relevantes.get(aux[0]).contains(aux[1]))
-          est.get(aux[0]).set(1,est.get(aux[0]).get(1) + 1);
-      }
-    }
+//    createOutput(stats, outputFile);
   }
+
+  static HashMap<String, List<String>> readQRels(BufferedReader qrels) {
+    HashMap<String, List<String>> qrelsTable = new HashMap<>();
+
+    String line = null;
+    String oldId = "";
+    List<String> docList = new ArrayList<String>();
+    try {
+      line = qrels.readLine();
+      oldId = line.split("\t")[0];
+    }catch (IOException e){
+      e.printStackTrace();
+    }
+    while(line != null){
+      String[] cols = line.split("\t");
+      if (!oldId.equals(cols[0])){
+        List<String> clone = new ArrayList<>(docList);
+        docList.clear();
+        qrelsTable.put(oldId, clone);
+        oldId = cols[0];
+      }
+      if (cols[2].equals("1")){
+        docList.add(cols[1]);
+      }
+      try {
+        line = qrels.readLine();
+      }catch (IOException e){
+        e.printStackTrace();
+      }
+    }
+    qrelsTable.put(oldId, docList);
+    return qrelsTable;
+  }
+
+  static HashMap<String, HashMap<String, Double>> readResults(HashMap<String, List<String>> qrelsTable, BufferedReader results){
+    HashMap<String, HashMap<String, Double>> resultsStats = new HashMap<>();
+
+    String line = null;
+    String oldId = "";
+    HashMap<String, Double> stats = new HashMap<>();
+    int rel = 0;
+    int tot = 0;
+    int rel10 = 0;
+    List<Integer> points = new ArrayList<>();
+    try {
+      line = results.readLine();
+      oldId = line.split("\t")[0];
+    }catch (IOException e){
+      e.printStackTrace();
+    }
+    while(line != null){
+      String[] cols = line.split("\t");
+      if(qrelsTable.containsKey(cols[0])) {
+        if (!oldId.equals(cols[0])) {
+          stats = makeStats(rel, tot, qrelsTable.get(oldId).size(), rel10, points);
+          HashMap<String, Double> oldStats = new HashMap<>(stats);
+          stats.clear();
+          points.clear();
+          rel = 0; tot = 0; rel10 = 0;
+          resultsStats.put(oldId, oldStats);
+          oldId = cols[0];
+        }
+        tot++;
+        if (qrelsTable.get(oldId).contains(cols[1])) {
+          rel++;
+          if (tot <= 10) rel10 = rel;
+          points.add(tot);
+        }
+        try {
+          line = results.readLine();
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    }
+    stats = makeStats(rel, tot, qrelsTable.get(oldId).size(), rel10, points);
+    resultsStats.put(oldId,stats);
+    System.out.println(resultsStats);
+    return resultsStats;
+  }
+
+  private static HashMap<String, Double> makeStats(int tp, int tpfp, int tpfn, int rel10, List<Integer> puntos) {
+    HashMap<String, Double> stats = new HashMap<>();
+    double precision = (double) tp / (double) tpfp;
+    stats.put("precision", precision);
+    double recall = (double) tp / (double) tpfn;
+    stats.put("recall", recall);
+    double f1 = (2.0 * precision * recall) / (precision + recall);
+    stats.put("F1", f1);
+    stats.put("prec@10", (double) rel10 / 10.0);
+    List<Double> recalls = new ArrayList<>();
+    List<Double> precisions = new ArrayList<>();
+    for (int i = 1; i <= puntos.size(); i++) {
+      double p = (double) i / (double) puntos.get(i - 1);
+      precisions.add(p);
+      stats.put("p"+i,p);
+      double r = (double) i / (double) tpfn;
+      recalls.add(r);
+      stats.put("r"+i,r);
+    }
+
+    double ap = 0;
+    for (double p : precisions){
+      ap += p;
+    }
+    ap = ap / precisions.size();
+    stats.put("average_precision", ap);
+
+    return stats;
+  }
+
+//  private static void makeStats(HashMap<String, List<Integer>> resultsStats,
+//                                HashMap<String, List<String>> qrelsTable, OutputStreamWriter out) {
+//    HashMap<String, HashMap<String, Double>> fullStats = new HashMap<>();
+//    for (String key : resultsStats.keySet()) {
+//      HashMap<String, Double> stats = new HashMap<>();
+//      double tp = resultsStats.get(key).get(0);
+//      double tpfp = resultsStats.get(key).get(1);
+//      double precision = tp / tpfp;
+//      stats.put("precision", precision);
+//      double tpfn = qrelsTable.get(key).size();
+//      double recall = tp / tpfn;
+//      stats.put("recall", recall);
+//      double f1 = (2.0 * precision * recall) / (precision + recall);
+//      stats.put("F1", f1);
+//      stats.put("prec@10", resultsStats.get(key).get(0) / 10.0);
+//
+//
+//      fullStats.put(key, stats);
+//      System.out.println(fullStats);
+//    }
+//  }
+
 }
