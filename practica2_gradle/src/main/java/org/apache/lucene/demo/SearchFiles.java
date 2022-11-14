@@ -111,128 +111,10 @@ public class SearchFiles {
       cleanNeed = parseType(cleanNeed, query, parser2);
       cleanNeed = parseDate(cleanNeed, query);
       parseText(cleanNeed, query, analyzer);
-
       System.out.println(query.build());
       doPagingSearch(searcher, query.build(), hitsPerPage, outputFile, ids.item(i).getTextContent());
     }
 
-//    IndexReader reader = DirectoryReader.open(FSDirectory.open(Paths.get(index)));
-//    IndexSearcher searcher = new IndexSearcher(reader);
-//    Analyzer analyzer = new SpanishAnalyzer2();
-//
-//
-//
-//    BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(queries), StandardCharsets.UTF_8));
-//    QueryParser parser = new QueryParser(field, analyzer);
-//    QueryParser parser2 = new QueryParser(field, new WhitespaceAnalyzer());
-//    int nQuery = 1;
-//    while (true) {
-//
-//      String line = in.readLine();
-//      if (line == null) {
-//        break;
-//      }
-//
-//      line = line.trim();
-//      if (line.length() == 0) {
-//        break;
-//      }
-//      Query query;
-//      Builder queryBuilder = new BooleanQuery.Builder();
-//      int startSpatial = line.indexOf("spatial:");
-//
-//      if (startSpatial != -1) {
-//        String spatial = "";
-//        int endSpatial = line.indexOf(" ", startSpatial);
-//        if (endSpatial == -1)
-//          spatial = line.substring(startSpatial);
-//        else
-//          spatial = line.substring(startSpatial, endSpatial);
-//
-//        // Spatial query
-//        int separator = spatial.indexOf(":");
-//        int auxSep = separator;
-//        Double[] coords = new Double[4];
-//        for(int i = 0; i < 3; i++) {
-//          separator = spatial.indexOf(',', auxSep+1);
-//          coords[i] = Double.parseDouble(spatial.substring(auxSep+1, separator));
-//          auxSep = separator;
-//        }
-//        coords[3] = Double.parseDouble(spatial.substring(separator+1));
-//
-//        Query westRangeQuery = DoublePoint.newRangeQuery("west",
-//                                  Double.NEGATIVE_INFINITY, coords[1]);
-//        Query eastRangeQuery = DoublePoint.newRangeQuery("east",
-//                                  coords[0], Double.POSITIVE_INFINITY);
-//        Query southRangeQuery = DoublePoint.newRangeQuery("south",
-//                                  Double.NEGATIVE_INFINITY, coords[3]);
-//        Query northRangeQuery = DoublePoint.newRangeQuery("north",
-//                                  coords[2], Double.POSITIVE_INFINITY);
-//        BooleanQuery spatialQuery = new BooleanQuery.Builder()
-//                .add(westRangeQuery, BooleanClause.Occur.MUST)
-//                .add(eastRangeQuery, BooleanClause.Occur.MUST)
-//                .add(northRangeQuery, BooleanClause.Occur.MUST)
-//                .add(southRangeQuery, BooleanClause.Occur.MUST).build();
-//
-//        if(endSpatial == -1)
-//          line = line.substring(0,startSpatial);
-//        else
-//          line = line.substring(0,startSpatial) + line.substring(endSpatial+1);
-//        if (!line.equals("")) {
-//          Query normalQuery = parser.parse(line);
-//          query = new BooleanQuery.Builder()
-//                  .add(normalQuery, BooleanClause.Occur.SHOULD)
-//                  .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
-//        }
-//        else {
-//          query = new BooleanQuery.Builder()
-//                  .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
-//        }
-//      }
-//      else {
-//        query = parser.parse(line);
-//      }
-//
-////      if (!line.equals("")) {
-//////          Query normalQuery = parser.parse(line);
-////        String[] simple = line.split(" ");
-////        int i = 0;
-////        for (String s : simple) {
-////          if(s.indexOf(":",0) > 0) {
-////            if (s.indexOf("tipo",0) > 0) query = parser2.parse(s);
-////            else { query = parser.parse(s); }
-////            queryBuilder.add(query, BooleanClause.Occur.SHOULD).build();
-////          }
-////        }
-////        queryBuilder.add(spatialQuery, BooleanClause.Occur.SHOULD);
-////        query = queryBuilder.build();
-////      }
-////      else {
-////        query = new BooleanQuery.Builder()
-////                .add(spatialQuery, BooleanClause.Occur.SHOULD).build();
-////      }
-////    }
-////      else {
-////      String[] simple = line.split(" ");
-////      for (String s : simple) {
-////        if(s.indexOf(":",0) >= 0) {
-////          if (s.indexOf("tipo",0) >= 0) {
-////            query = parser2.parse(s);
-////          }
-////          else {
-////            query = parser.parse(s);
-////          }
-////          queryBuilder.add(query, BooleanClause.Occur.SHOULD).build();
-////        }
-////      }
-////      query = queryBuilder.build();
-////    }
-//
-//      System.out.println("Searching for: " + query.toString(field));
-//      System.out.println(query);
-//      doPagingSearch(searcher, query, hitsPerPage, outputFile, Integer.toString(nQuery));
-//      nQuery++;
-//    }
     reader.close();
     assert outputFile != null;
     outputFile.close();
@@ -273,8 +155,8 @@ public class SearchFiles {
     if (namesList.size() != 0) {
       for (String s : namesList) {
         Query queryPerson = MultiFieldQueryParser.parse(s, fields, flags, analyzer);
-        query.add(queryPerson, BooleanClause.Occur.MUST);
-        need = need.replace(" " + s, "");
+        query.add(new BoostQuery(queryPerson, (float) 1.8), BooleanClause.Occur.SHOULD);
+        //need = need.replace(" " + s, "");
       }
     }
     return need;
@@ -303,7 +185,7 @@ public class SearchFiles {
       }
     }
     if(found)
-      query.add(aux.build(), BooleanClause.Occur.MUST);
+      query.add(new BoostQuery(aux.build(), (float) 1.5), BooleanClause.Occur.SHOULD);
     return need.replace("departamento ", "").replace("area ", "");
   }
 
@@ -334,7 +216,7 @@ public class SearchFiles {
       aux.add(new TermQuery(new Term(field, "TESIS")), BooleanClause.Occur.SHOULD);
 
     }
-    if(!empty) query.add(aux.build(), BooleanClause.Occur.MUST);
+    if(!empty) query.add(new BoostQuery(aux.build(), (float) 2.0), BooleanClause.Occur.SHOULD);
 
     return need.replace("trabajos ", "").replace(" grado", "")
             .replace(" master", "").replace("proyectos ", "")
@@ -368,7 +250,7 @@ public class SearchFiles {
         }
         if (fecha1 != null || fecha2 != null) {
           Query queryLine = TermRangeQuery.newStringRange(field, fecha1, fecha2, true, true);
-          query.add(queryLine, BooleanClause.Occur.MUST);
+          query.add(new BoostQuery(queryLine, (float) 1.5), BooleanClause.Occur.SHOULD);
         }
       }
     }
@@ -398,17 +280,17 @@ public class SearchFiles {
     String[] words = need.split(" ");
     String[] tags = tagger.tag(words);
     for(int i = 0; i < tags.length; i++) {
-      if ((i+1 < tags.length) && tags[i].startsWith("N") && tags[i+1].startsWith("A")) {
+      /*if ((i+1 < tags.length) && tags[i].startsWith("N") && tags[i+1].startsWith("A")) {
         Query queryWord = MultiFieldQueryParser.parse("\"" + words[i] + " " + words[i+1] + "\"", fields, flags, analyzer);
         aux.add(queryWord, BooleanClause.Occur.SHOULD);
         i++;
       }
-      else if (tags[i].startsWith("N") || tags[i].startsWith("A") || tags[i].startsWith("Z")) {
+      else*/ if (tags[i].startsWith("N") || tags[i].startsWith("A") || tags[i].startsWith("Z")) {
         Query queryWord = MultiFieldQueryParser.parse(words[i], fields, flags, analyzer);
         aux.add(queryWord, BooleanClause.Occur.SHOULD);
       }
     }
-    query.add(aux.build(), BooleanClause.Occur.MUST);
+    query.add(new BoostQuery(aux.build(), (float) 0.8), BooleanClause.Occur.SHOULD);
   }
 
   /**

@@ -1,25 +1,4 @@
-package org.apache.lucene.demo;
-
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
-
 import java.io.*;
-import java.text.DecimalFormat;
 import java.util.*;
 
 /** Index all text files under a directory.
@@ -39,6 +18,11 @@ public class Evaluation {
     String qrelsPath = null;
     String resultsPath = null;
     OutputStreamWriter outputFile = null;
+    BufferedReader qrelsReader;
+    BufferedReader resultsReader;
+    HashMap<String, List<String>> qrelsTable;
+    HashMap<String, HashMap<String, Double>> resultsStats;
+
     for(int i=0;i<args.length;i++) {
       if ("-qrels".equals(args[i])) {
         qrelsPath = args[i+1];
@@ -57,7 +41,6 @@ public class Evaluation {
       System.exit(1);
     }
 
-    BufferedReader qrelsReader;
     try {
       qrelsReader = new BufferedReader(new InputStreamReader(new FileInputStream(qrelsPath)));
     } catch (FileNotFoundException fnfe) {
@@ -66,7 +49,6 @@ public class Evaluation {
       return;
     }
 
-    BufferedReader resultsReader;
     try {
       resultsReader = new BufferedReader(new InputStreamReader(new FileInputStream(resultsPath)));
     } catch (FileNotFoundException fnfe) {
@@ -75,21 +57,24 @@ public class Evaluation {
       return;
     }
 
-    HashMap<String, List<String>> qrelsTable;
-    HashMap<String, HashMap<String, Double>> resultsStats;
-
-    //Procesar fichero de relevancias
+    // Procesar fichero de juicios
     qrelsTable = readQRels(qrelsReader);
-    //Procesar fichero de resultados
+
+    // Procesar fichero de resultados y calcular estadísticas
     resultsStats = readResults(qrelsTable, resultsReader);
-    //Calcular estadisticas
-//    makeStats(resultsStats, outputFile);
+
+    // Generar fichero de estadísticas
     createOutput(resultsStats, outputFile);
   }
 
+  /***
+   * Devuelve un HashMap de documentos relevantes para cada consulta
+   * @param qrels : Descriptor del fichero de juicios
+   * @return :
+   */
   static HashMap<String, List<String>> readQRels(BufferedReader qrels) {
     HashMap<String, List<String>> qrelsTable = new HashMap<>();
-    List<String> docList = new ArrayList<String>();
+    List<String> docList = new ArrayList<>();
     String line = null;
     String oldId = "";
 
@@ -121,6 +106,12 @@ public class Evaluation {
     return qrelsTable;
   }
 
+  /***
+   * Devuelve un HashMap con las estadísticas para cada consulta
+   * @param qrelsTable : HashMap de documentos relevantes para cada consulta
+   * @param results : Descriptor del fichero de resultados del sistema
+   * @return :
+   */
   static HashMap<String, HashMap<String, Double>> readResults(HashMap<String, List<String>> qrelsTable, BufferedReader results){
     HashMap<String, HashMap<String, Double>> resultsStats = new HashMap<>();
     HashMap<String, Double> stats;
@@ -153,11 +144,13 @@ public class Evaluation {
           i = 0;
         }
         i++;
-        if(i <= 45) tot++;
-        if (qrelsTable.get(oldId).contains(cols[1]) && i <=45) {
-          rel++;
-          if (tot <= 10) rel10 = rel;
-          points.add(tot);
+        if(i <= 45) {
+          tot++;
+          if (qrelsTable.get(oldId).contains(cols[1])) {
+            rel++;
+            if (tot <= 10) rel10 = rel;
+            points.add(tot);
+          }
         }
         try {
           line = results.readLine();
@@ -171,6 +164,15 @@ public class Evaluation {
     return resultsStats;
   }
 
+  /***
+   * Devuelve un HashMap con las estadísticas a analizar
+   * @param tp : Documentos relevantes detectados
+   * @param tpfp : Documentos totales detectados
+   * @param tpfn : Documentos relevantes totales
+   * @param rel10 : Documentos relevantes encontrados al analizar 10 documentos totales
+   * @param puntos : Lista de documentos totales procesados al encontrar cada documento relevante
+   * @return :
+   */
   private static HashMap<String, Double> makeStats(int tp, int tpfp, int tpfn, int rel10, List<Integer> puntos) {
     HashMap<String, Double> stats = new HashMap<>();
     List<Double> recalls = new ArrayList<>();
@@ -211,19 +213,31 @@ public class Evaluation {
     return stats;
   }
 
+  /***
+   * Genera el documento con las estadísticas del sistema evaluado
+   * @param resultsStats : HashMap con las estadísticas para cada consulta
+   * @param outputFile : Descriptor de fichero de salida
+   * @throws IOException :
+   */
   private static void createOutput(HashMap<String, HashMap<String, Double>> resultsStats, OutputStreamWriter outputFile) throws IOException {
-    DecimalFormat df = new DecimalFormat("#.##");
     StringBuilder stats = new StringBuilder();
+    double[] total = new double[]{0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+    int k = 0;
+    double size = resultsStats.size();
 
     for (String key : resultsStats.keySet()) {
       int i = 1;
       int id = 0;
       stats.append("INFORMATION_NEED ").append(key).append("\n");
       stats.append("precision ").append(String.format("%,.03f",resultsStats.get(key).get("precision"))).append("\n");
+      total[k] += resultsStats.get(key).get("precision"); k++;
       stats.append("recall ").append(String.format("%,.03f",resultsStats.get(key).get("recall"))).append("\n");
+      total[k] += resultsStats.get(key).get("recall"); k++;
       stats.append("F1 ").append(String.format("%,.03f",resultsStats.get(key).get("F1"))).append("\n");
       stats.append("prec@10 ").append(String.format("%,.03f",resultsStats.get(key).get("prec@10"))).append("\n");
+      total[k] += resultsStats.get(key).get("prec@10"); k++;
       stats.append("average_precision ").append(String.format("%,.03f",resultsStats.get(key).get("average_precision"))).append("\n");
+      total[k] += resultsStats.get(key).get("average_precision"); k++;
       Double rec = resultsStats.get(key).get("r"+i);
       stats.append("recall_precision\n");
       while(rec != null) {
@@ -236,37 +250,32 @@ public class Evaluation {
       stats.append("interpolated_recall_precision\n");
       for(double j = 0.000; j <= 1.000; j += 0.100) {
         String p = String.format("%,.03f", resultsStats.get(key).get("ip"+id));
+        total[k] += resultsStats.get(key).get("ip"+id); k++;
         stats.append(String.format("%,.03f", j)).append(" ").append(p).append("\n");
         id++;
       }
       stats.append("\n");
+      k = 0;
     }
 
+    for (k = 0; k < total.length; k++) {
+      total[k] = total[k] / size;
+    }
+    k = 0;
+    stats.append("TOTAL").append("\n");
+    stats.append("precision ").append(String.format("%,.03f",total[k])).append("\n"); k++;
+    stats.append("recall ").append(String.format("%,.03f",total[k])).append("\n"); k++;
+    stats.append("F1 ").append(String.format("%,.03f", (2*total[0]*total[1]) / (total[0]+total[1]))).append("\n");
+    stats.append("prec@10 ").append(String.format("%,.03f",total[k])).append("\n"); k++;
+    stats.append("MAP ").append(String.format("%,.03f",total[k])).append("\n"); k++;
+    stats.append("interpolated_recall_precision\n");
+    for(double j = 0.000; j <= 1.000; j += 0.100) {
+      String p = String.format("%,.03f", total[k]); k++;
+      stats.append(String.format("%,.03f", j)).append(" ").append(p).append("\n");
+    }
 
     outputFile.write(stats.toString());
     outputFile.flush();
   }
-
-//  private static void makeStats(HashMap<String, List<Integer>> resultsStats,
-//                                HashMap<String, List<String>> qrelsTable, OutputStreamWriter out) {
-//    HashMap<String, HashMap<String, Double>> fullStats = new HashMap<>();
-//    for (String key : resultsStats.keySet()) {
-//      HashMap<String, Double> stats = new HashMap<>();
-//      double tp = resultsStats.get(key).get(0);
-//      double tpfp = resultsStats.get(key).get(1);
-//      double precision = tp / tpfp;
-//      stats.put("precision", precision);
-//      double tpfn = qrelsTable.get(key).size();
-//      double recall = tp / tpfn;
-//      stats.put("recall", recall);
-//      double f1 = (2.0 * precision * recall) / (precision + recall);
-//      stats.put("F1", f1);
-//      stats.put("prec@10", resultsStats.get(key).get(0) / 10.0);
-//
-//
-//      fullStats.put(key, stats);
-//      System.out.println(fullStats);
-//    }
-//  }
 
 }
