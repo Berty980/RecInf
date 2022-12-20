@@ -9,13 +9,16 @@ import org.apache.jena.rdf.model.Statement;
 import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.util.FileManager;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  * Ejemplo de lectura de un modelo RDF de un fichero de texto 
  * y como acceder por API a los elementos que contiene
  */
 public class D_AccesoRDF {
 
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 
 		// cargamos el fichero deseado
 		Model model = FileManager.get().loadModel("card.rdf");
@@ -80,6 +83,26 @@ public class D_AccesoRDF {
 						+ st.getLiteral().toString());
 			}
 		}
-	}
 
+		System.out.println("----------------------------------------");
+
+		// dado un recurso mostramos los recursos que comparten al menos una de
+		// sus propiedades
+		Resource res2 = model
+				.getResource("http://dig.csail.mit.edu/2008/webdav/timbl/foaf.rdf");
+		it = res2.listProperties();
+		Set<String> set = new HashSet<String>();
+		while (it.hasNext()) {
+			Statement st = it.next();
+			ResIterator ri2 = model.listSubjectsWithProperty(st.getPredicate());
+			while (ri2.hasNext()) {
+				Resource r = ri2.next();
+				if (r != res2)
+					set.add(r.getURI());
+			}
+		}
+		for(String s: set)
+			System.out.println(s);
+		System.out.println("----------------------------------------");
+	}
 }

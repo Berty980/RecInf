@@ -20,7 +20,7 @@ import org.apache.jena.util.FileManager;
  */
 public class E_AccesoSPARQL {
 
-	public static void main(String args[]) {
+	public static void main(String[] args) {
 		
 		// cargamos el fichero deseado
 		Model model = FileManager.get().loadModel("card.rdf");
@@ -29,36 +29,35 @@ public class E_AccesoSPARQL {
 		String queryString = "Select ?x ?y ?z WHERE  {?x ?y ?z }" ;
 		
 		//ejecutamos la consulta y obtenemos los resultados
-		  Query query = QueryFactory.create(queryString) ;
-		  QueryExecution qexec = QueryExecutionFactory.create(query, model) ;
-		  try {
-		    ResultSet results = qexec.execSelect() ;
-		    for ( ; results.hasNext() ; )
-		    {
-		      QuerySolution soln = results.nextSolution() ;
-		      Resource x = soln.getResource("x");
-		      Resource y = soln.getResource("y");
-		      RDFNode z = soln.get("z") ;  
-		      if (z.isLiteral()) {
+		Query query = QueryFactory.create(queryString);
+		QueryExecution qexec = QueryExecutionFactory.create(query, model);
+		try {
+			ResultSet results = qexec.execSelect();
+		  	while (results.hasNext()) {
+				QuerySolution soln = results.nextSolution();
+				Resource x = soln.getResource("x");
+				Resource y = soln.getResource("y");
+				RDFNode z = soln.get("z");
+				if (z.isLiteral()) {
 					System.out.println(x.getURI() + " - "
-							+ y.getURI() + " - "
-							+ z.toString());
+						+ y.getURI() + " - "
+						+ z);
 				} else {
 					System.out.println(x.getURI() + " - "
-							+ y.getURI() + " - "
-							+ z.asResource().getURI());
-				}
-		    }
-		  } finally { qexec.close() ; }
+						+ y.getURI() + " - "
+						+ z.asResource().getURI());
+			  	}
+		  	}
+		} finally { qexec.close(); }
 		
 		System.out.println("----------------------------------------");
 
 		//definimos la consulta (tipo describe)
 		queryString = "Describe <http://www.w3.org/People/Berners-Lee/card#i>" ;
-		query = QueryFactory.create(queryString) ;
-		qexec = QueryExecutionFactory.create(query, model) ;
-		Model resultModel = qexec.execDescribe() ;
-		qexec.close() ;
+		query = QueryFactory.create(queryString);
+		qexec = QueryExecutionFactory.create(query, model);
+		Model resultModel = qexec.execDescribe();
+		qexec.close();
 		resultModel.write(System.out);
 		
 		System.out.println("----------------------------------------");
@@ -66,19 +65,19 @@ public class E_AccesoSPARQL {
 		
 		//definimos la consulta (tipo ask)
 		queryString = "ask {<http://www.w3.org/People/Berners-Lee/card#i> ?x ?y}" ;
-		query = QueryFactory.create(queryString) ;
-		qexec = QueryExecutionFactory.create(query, model) ;
-		System.out.println( qexec.execAsk()) ;
-		qexec.close() ;
+		query = QueryFactory.create(queryString);
+		qexec = QueryExecutionFactory.create(query, model);
+		System.out.println( qexec.execAsk());
+		qexec.close();
 		
 		System.out.println("----------------------------------------");
 	
 		//definimos la consulta (tipo cosntruct)
 		queryString = "construct {?x <http://miuri/inverseSameAs> ?y} where {?y <http://www.w3.org/2002/07/owl#sameAs> ?x}" ;
-		query = QueryFactory.create(queryString) ;
-		qexec = QueryExecutionFactory.create(query, model) ;
-		resultModel = qexec.execConstruct() ;
-		qexec.close() ;
+		query = QueryFactory.create(queryString);
+		qexec = QueryExecutionFactory.create(query, model);
+		resultModel = qexec.execConstruct();
+		qexec.close();
 		resultModel.write(System.out);
 		
 	}

@@ -1,0 +1,32 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:vcard="http://www.w3.org/2001/vcard-rdf/3.0#"
+    xmlns:j.0="http://xmlns.com/foaf/0.1/">
+  <rdf:Description rdf:about="http://somewhere/JohnSmith">
+    <vcard:N rdf:parseType="Resource">
+      <vcard:Family>Smith</vcard:Family>
+      <vcard:Given>John</vcard:Given>
+    </vcard:N>
+    <vcard:FN>John Smith</vcard:FN>
+    <rdf:type>http://xmlns.com/foaf/0.1/person</rdf:type>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://somewhere/AlbertoLardies">
+    <j.0:knows>
+      <rdf:Description rdf:about="http://somewhere/DanielGracia">
+        <rdf:type>http://xmlns.com/foaf/0.1/person</rdf:type>
+        <j.0:knows rdf:resource="http://somewhere/AlbertoLardies"/>
+        <vcard:N rdf:parseType="Resource">
+          <vcard:Family>Gracia</vcard:Family>
+          <vcard:Given>Daniel</vcard:Given>
+        </vcard:N>
+        <vcard:FN>Daniel Gracia</vcard:FN>
+      </rdf:Description>
+    </j.0:knows>
+    <vcard:N rdf:parseType="Resource">
+      <vcard:Family>Lardies</vcard:Family>
+      <vcard:Given>Alberto</vcard:Given>
+    </vcard:N>
+    <vcard:FN>Alberto Lardies</vcard:FN>
+    <rdf:type>http://xmlns.com/foaf/0.1/person</rdf:type>
+  </rdf:Description>
+</rdf:RDF>

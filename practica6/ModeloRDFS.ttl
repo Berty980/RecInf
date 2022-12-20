@@ -1,0 +1,69 @@
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://mydic/documento>
+        a             owl:Class ;
+        rdfs:comment  "Archivo de texto del trabajo publicado" .
+
+<http://mydic/entidad>
+        a             owl:Class ;
+        rdfs:comment  "Nombre de universidad, departamento u organizacion" .
+
+<http://mydic/persona>
+        a             owl:Class ;
+        rdfs:comment  "Nombre de una persona" .
+
+<http://mydic/tema>
+        a             owl:DatatypeProperty ;
+        rdfs:comment  "Temas principales del documento"@es ;
+        rdfs:domain   <http://mydic/documento> ;
+        rdfs:range    <http://www.w3.org/2004/02/skos/core#Concept> .
+
+<http://mydic/identificador>
+        a             owl:DatatypeProperty ;
+        rdfs:comment  "Identificador del documento"@es ;
+        rdfs:domain   <http://mydic/documento> ;
+        rdfs:range    rdfs:Literal .
+
+<http://mydic/descripcion>
+        a             owl:DatatypeProperty ;
+        rdfs:comment  "Resumen del documento"@es ;
+        rdfs:domain   <http://mydic/documento> ;
+        rdfs:range    rdfs:Literal .
+
+<http://mydic/departamento>
+        a             owl:ObjectProperty ;
+        rdfs:comment  "Organizacion a la que se atribuye la publicacion del documento"@es ;
+        rdfs:domain   <http://mydic/documento> ;
+        rdfs:range    <http://mydic/entidad> .
+
+<http://mydic/autor>
+        a             owl:ObjectProperty ;
+        rdfs:comment  "Autor del documento"@es ;
+        rdfs:domain   <http://mydic/documento> ;
+        rdfs:range    <http://mydic/persona> .
+
+<http://mydic/director>
+        a             owl:ObjectProperty ;
+        rdfs:comment  "Persona que dirige el proyecto"@es ;
+        rdfs:domain   <http://mydic/documento> ;
+        rdfs:range    <http://mydic/persona> .
+
+<http://mydic/fecha>
+        a             owl:DatatypeProperty ;
+        rdfs:comment  "Fecha de publicacion del documento"@es ;
+        rdfs:domain   <http://mydic/documento> ;
+        rdfs:range    <http://www.w3.org/2001/XMLSchema#date> .
+
+<http://mydic/titulo>
+        a             owl:DatatypeProperty ;
+        rdfs:comment  "Titulo del documento"@es ;
+        rdfs:domain   <http://mydic/documento> ;
+        rdfs:range    rdfs:Literal .
+
+<http://mydic/tipo>
+        a             owl:ObjectProperty ;
+        rdfs:comment  "TFC, TFG o TFM"@es ;
+        rdfs:domain   <http://mydic/documento> ;
+        rdfs:range    <http://mydic/documento> .
