@@ -35,8 +35,8 @@ public class B_InferenciaOWL2 {
 		
 		//definimos las relaciones hijo, e hijo adoptivo
 		Property hijoDe = rdfsExample.createProperty(NS, "hijoDe");
-		//Property padreDe = rdfsExample.createProperty(NS, "padreDe");
-		//padreDe.addProperty(OWL.inverseOf, hijoDe);
+		Property padreDe = rdfsExample.createProperty(NS, "padreDe");
+		padreDe.addProperty(OWL.inverseOf, hijoDe);
 		
 		rdfsExample.add(hijoDe, RDF.type, RDF.Property);
 		hijoDe.addProperty(RDFS.domain, animalClass);

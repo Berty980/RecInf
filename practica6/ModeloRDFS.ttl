@@ -14,8 +14,12 @@
         a             owl:Class ;
         rdfs:comment  "Nombre de una persona" .
 
+<http://mydic/documento>
+        a             owl:Class ;
+        rdfs:comment  "Archivo de texto del trabajo publicado" .
+
 <http://mydic/tema>
-        a             owl:DatatypeProperty ;
+        a             owl:ObjectProperty ;
         rdfs:comment  "Temas principales del documento"@es ;
         rdfs:domain   <http://mydic/documento> ;
         rdfs:range    <http://www.w3.org/2004/02/skos/core#Concept> .

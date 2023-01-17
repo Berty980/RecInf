@@ -27,7 +27,6 @@ import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTaggerME;
 import opennlp.tools.util.Span;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.core.WhitespaceAnalyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer2;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.DirectoryReader;
@@ -80,7 +79,6 @@ public class SearchFiles {
     IndexSearcher searcher = new IndexSearcher(reader);
     Analyzer analyzer = new SpanishAnalyzer2();
     QueryParser parser = new QueryParser(field, analyzer);
-    QueryParser parser2 = new QueryParser(field, new WhitespaceAnalyzer());
 
     FileInputStream fis;
     try {
@@ -108,7 +106,7 @@ public class SearchFiles {
       cleanNeed = parseNames(cleanNeed, query, analyzer);
       cleanNeed = cleanNeed.toLowerCase();
       cleanNeed = parsePublisher(cleanNeed, query, parser);
-      cleanNeed = parseType(cleanNeed, query, parser2);
+      cleanNeed = parseType(cleanNeed, query);
       cleanNeed = parseDate(cleanNeed, query);
       parseText(cleanNeed, query, analyzer);
       System.out.println(query.build());
@@ -189,9 +187,9 @@ public class SearchFiles {
     return need.replace("departamento ", "").replace("area ", "");
   }
 
-  private static String parseType(String need, Builder query, QueryParser parser) throws ParseException {
+  private static String parseType(String need, Builder query) {
     List<String> words = Arrays.stream(need.split(" ")).toList();
-    String field = "tipo", queryString = "";
+    String field = "tipo";
     Builder aux = new BooleanQuery.Builder();
     boolean empty = true;
     if(words.contains("trabajos")) {
@@ -205,7 +203,6 @@ public class SearchFiles {
         aux.add(new TermQuery(new Term(field, "TAZ-TFM")), BooleanClause.Occur.SHOULD);
         aux.add(new TermQuery(new Term(field, "TAZ-PFC")), BooleanClause.Occur.SHOULD);
       }
-      System.out.println(aux.build());
     }
     if(words.contains("proyectos")) {
       empty = false;
@@ -230,23 +227,27 @@ public class SearchFiles {
       if (isNumeric(words[i])) {
         String fecha1 = null, fecha2 = null;
 
-        if (words[i-1].equals("desde")) {
-          fecha1 = words[i];
-          need = need.replace(" " + fecha1, "");
-          if (words[i + 1].equals("hasta") && isNumeric(words[i + 2])) {
-            fecha2 = words[i + 2];
-            need = need.replace(" " + fecha2, "");
-        }
-        } else if (words[i-1].equals("ultimos")){
-          fecha1 = Integer.toString(Calendar.getInstance().get(Calendar.YEAR) - Integer.parseInt(words[i]));
-          need = need.replace(" " + words[i], "");
-        } else if (words[i-1].equals("entre")){
-          if (words[i+1].equals("y") && isNumeric(words[i+2])) {
+        switch (words[i - 1]) {
+          case "desde":
             fecha1 = words[i];
-            fecha2 = words[i + 2];
             need = need.replace(" " + fecha1, "");
-            need = need.replace(" " + fecha2, "");
-          }
+            if (words[i + 1].equals("hasta") && isNumeric(words[i + 2])) {
+              fecha2 = words[i + 2];
+              need = need.replace(" " + fecha2, "");
+            }
+            break;
+          case "ultimos":
+            fecha1 = Integer.toString(Calendar.getInstance().get(Calendar.YEAR) - Integer.parseInt(words[i]));
+            need = need.replace(" " + words[i], "");
+            break;
+          case "entre":
+            if (words[i + 1].equals("y") && isNumeric(words[i + 2])) {
+              fecha1 = words[i];
+              fecha2 = words[i + 2];
+              need = need.replace(" " + fecha1, "");
+              need = need.replace(" " + fecha2, "");
+            }
+            break;
         }
         if (fecha1 != null || fecha2 != null) {
           Query queryLine = TermRangeQuery.newStringRange(field, fecha1, fecha2, true, true);

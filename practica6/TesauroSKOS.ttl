@@ -1,46 +1,125 @@
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix skos:   <http://www.w3.org/2004/02/skos/core#> .
 
-<http://mydic/gobierno>
-        skos:prefLabel "caciquismo"@es ;
-        skos:prefLabel "dictadura"@es ;
-        skos:prefLabel "represion politica"@es ;
-        skos:altLabel  "presos politicos"@es ;
-        skos:altLabel  "fascismo"@es ;
-        skos:altLabel  "franquismo"@es .
+<http://mydic/dictadura>
+        a               skos:Concept ;
+        skos:prefLabel  "caciquismo"@es ;
+        skos:prefLabel  "dictadura"@es ;
+        skos:prefLabel  "represion politica"@es ;
+        skos:prefLabel  "presos politicos"@es .
+
+<http://mydic/fascismo>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/dictadura> ;
+        skos:prefLabel  "fascismo"@es .
+
+<http://mydic/franquismo>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/dictadura> ;
+        skos:prefLabel  "franquismo"@es .
+
+<http://mydic/españa>
+        a               skos:Concept ;
+        skos:prefLabel  "españa"@es .
+
+<http://mydic/huesca>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/españa> ;
+        skos:prefLabel  "huesca"@es .
+
+<http://mydic/jaca>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/huesca> ;
+        skos:prefLabel  "jaca"@es .
+
+<http://mydic/sabiñanigo>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/huesca> ;
+        skos:prefLabel  "sabiñanigo"@es .
+
+<http://mydic/biescas>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/huesca> ;
+        skos:prefLabel  "biescas"@es .
 
 <http://mydic/medicina>
-        skos:prefLabel "ingenieria biomedica"@es ;
-        skos:prefLabel "enfermedades"@es ;
-        skos:prefLabel "neurodegenerativas"@es ;
-        skos:altLabel  "alzheimer"@es ;
-        skos:altLabel  "parkinson"@es ;
-        skos:altLabel  "perdida de memoria"@es ;
-        skos:altLabel  "sistema nervioso"@es ;
-        skos:altLabel  "diagnostico"@es .
+        a               skos:Concept ;
+        skos:prefLabel  "medicina"@es ;
+        skos:prefLabel  "ingenieria biomedica"@es .
+
+<http://mydic/enfermedades>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/medicina> ;
+        skos:prefLabel  "enfermedades"@es ;
+        skos:prefLabel  "diseases"@en .
+
+<http://mydic/neurodegenerativas>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/enfermedades> ;
+        skos:prefLabel  "neurodegenerativas"@es ;
+        skos:prefLabel  "neurodegenerative"@en .
+
+<http://mydic/alzheimer>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/neurodegenerativas> ;
+        skos:prefLabel  "alzheimer"@es .
+
+<http://mydic/parkinson>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/neurodegenerativas> ;
+        skos:prefLabel  "parkinson"@es .
 
 <http://mydic/economia>
-        skos:prefLabel "evolucion economica"@es ;
-        skos:prefLabel "economia"@es ;
-        skos:prefLabel "crisis"@es ;
-        skos:altLabel  "economica"@es ;
-        skos:altLabel  "recesion"@es ;
-        skos:altLabel  "inflacion"@es ;
-        skos:altLabel  "prevision economica"@es .
+        a               skos:Concept ;
+        skos:prefLabel  "economia"@es ;
+        skos:prefLabel  "economica"@es ;
+        skos:prefLabel  "economics"@en .
+
+<http://mydic/evolucioneconomica>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/economia> ;
+        skos:prefLabel  "evolucion economica"@es ;
+        skos:prefLabel  "prevision economica"@es .
+
+<http://mydic/crisis>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/economia> ;
+        skos:prefLabel  "crisis economica"@es ;
+        skos:altLabel   "inflacion"@es ;
+        skos:altLabel   "recesion"@es .
 
 <http://mydic/bioinformatica>
-        skos:prefLabel "bioinformatica"@es ;
-        skos:prefLabel "bioinformatics"@en ;
-        skos:altLabel  "biologia computacional"@es ;
-        skos:altLabel  "computational biology"@en ;
-        skos:prefLabel "filogenetica"@es ;
-        skos:prefLabel "phylogenetics"@en ;
-        skos:altLabel  "genotipo"@es .
+        a               skos:Concept ;
+        skos:prefLabel  "bioinformatica"@es ;
+        skos:prefLabel  "bioinformatics"@en ;
+        skos:prefLabel  "biologia computacional"@es ;
+        skos:prefLabel  "computational biology"@en .
+
+<http://mydic/filogenetica>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/bioinformatica> ;
+        skos:prefLabel  "filogenetica"@es ;
+        skos:prefLabel  "phylogenetics"@en .
 
 <http://mydic/informatica>
-        skos:prefLabel "informatica"@es ;
-        skos:prefLabel "computer science"@en ;
-        skos:altLabel  "computacion"@es ;
-        skos:altLabel  "ordenador"@es ;
-        skos:altLabel  "programacion"@es .
+        a               skos:Concept ;
+        skos:prefLabel  "informatica"@es ;
+        skos:prefLabel  "informatics"@en ;
+        skos:prefLabel  "computer science"@en .
 
+<http://mydic/computacion>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/informatica> ;
+        skos:prefLabel  "computacion"@es .
+
+<http://mydic/ordenador>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/informatica> ;
+        skos:prefLabel  "ordenador"@es ;
+        skos:prefLabel  "computer"@es .
+
+<http://mydic/programacion>
+        a               skos:Concept ;
+        skos:narrower   <http://mydic/informatica> ;
+        skos:prefLabel  "programacion"@es ;
+        skos:prefLabel  "programming"@en .

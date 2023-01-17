@@ -17,7 +17,7 @@ import org.apache.jena.vocabulary.RDFS;
  */
 public class A_InferenciaRDFS {
 
-	public static void main (String args[]) {
+	public static void main (String[] args) {
 		String NS = "urn:x-hp-jena:eg/";
 	
 		// contruimos un modelo secillo de seres vivos y sus relaciones

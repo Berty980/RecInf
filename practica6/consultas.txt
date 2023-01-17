@@ -1,0 +1,2 @@
+206-4	SELECT DISTINCT ?file WHERE {?file <http://urldic/fecha> ?fecha .filter(?fecha = "2018") ?file <http://urldic/title> ?titulo . filter regex(str(?titulo), "acromioplastia")}
+201-1	SELECT DISTINCT ?file WHERE {?file <http://urldic/fecha> ?fecha .filter(?fecha = "2018")}

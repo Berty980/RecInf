@@ -21,16 +21,21 @@ import openllet.jena.PelletReasonerFactory;
  */
 public class InferenciaOWL2tesauro{
 
-	public static void main (String args[]) throws Exception{
+	public static void main (String[] args) throws Exception{
 		
 		// cargamos el modelo y la coleccion
 		Model colec = FileManager.get().loadModel("librosColeccion.ttl","TURTLE");
 		Model model = FileManager.get().loadModel("librosModelo.ttl","TURTLE");
-		
+
+		Model owlModel = FileManager.get().loadModel("ModeloRDFS.ttl", "TURTLE");
+		Model skosModel = FileManager.get().loadModel("TesauroSKOS.ttl", "TURTLE");
+		//owlModel.add(skosModel);
+		skosModel.write(new FileOutputStream("Tesauro.rdf"));
 		
 		//mezclamos modelo y coleccion
 		Model union = ModelFactory.createUnion(model, colec);
-		
+
+
 		//creamos un modelo de inferencia OWL2
 		InfModel inf = ModelFactory.createInfModel(PelletReasonerFactory.theInstance().create(), union);
 					

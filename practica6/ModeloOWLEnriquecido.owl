@@ -1,0 +1,170 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+  <owl:Class rdf:about="http://mydic/documento">
+    <rdfs:comment>Archivo de texto del trabajo publicado</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://mydic/entidad">
+    <rdfs:comment>Nombre de universidad, departamento u organizacion</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://mydic/persona">
+    <rdfs:comment>Nombre de una persona</rdfs:comment>
+  </owl:Class>
+  <owl:ObjectProperty rdf:about="http://mydic/autor">
+    <rdfs:range rdf:resource="http://mydic/persona"/>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:comment xml:lang="es">Autor del documento</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://mydic/tipo">
+    <rdfs:range rdf:resource="http://mydic/documento"/>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:comment xml:lang="es">TFC, TFG o TFM</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://mydic/director">
+    <rdfs:range rdf:resource="http://mydic/persona"/>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:comment xml:lang="es">Persona que dirige el proyecto</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://mydic/tema">
+    <rdfs:range rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:comment xml:lang="es">Temas principales del documento</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://mydic/departamento">
+    <rdfs:range rdf:resource="http://mydic/entidad"/>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:comment xml:lang="es">Organizacion a la que se atribuye la publicacion del documento</rdfs:comment>
+  </owl:ObjectProperty>
+  <owl:DatatypeProperty rdf:about="http://mydic/titulo">
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:comment xml:lang="es">Titulo del documento</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://mydic/descripcion">
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:comment xml:lang="es">Resumen del documento</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://mydic/fecha">
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#date"/>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:comment xml:lang="es">Fecha de publicacion del documento</rdfs:comment>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://mydic/identificador">
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:comment xml:lang="es">Identificador del documento</rdfs:comment>
+  </owl:DatatypeProperty>
+  <skos:Concept rdf:about="http://mydic/programacion">
+    <skos:narrower>
+      <skos:Concept rdf:about="http://mydic/informatica">
+        <skos:prefLabel xml:lang="es">informatica</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">informatics</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">computer science</skos:prefLabel>
+      </skos:Concept>
+    </skos:narrower>
+    <skos:prefLabel xml:lang="es">programacion</skos:prefLabel>
+    <skos:prefLabel xml:lang="en">programming</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/filogenetica">
+    <skos:narrower>
+      <skos:Concept rdf:about="http://mydic/bioinformatica">
+        <skos:prefLabel xml:lang="es">bioinformatica</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">bioinformatics</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">biologia computacional</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">computational biology</skos:prefLabel>
+      </skos:Concept>
+    </skos:narrower>
+    <skos:prefLabel xml:lang="es">filogenetica</skos:prefLabel>
+    <skos:prefLabel xml:lang="en">phylogenetics</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/fascismo">
+    <skos:narrower>
+      <skos:Concept rdf:about="http://mydic/dictadura">
+        <skos:prefLabel xml:lang="es">caciquismo</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">dictadura</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">represion politica</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">presos politicos</skos:prefLabel>
+      </skos:Concept>
+    </skos:narrower>
+    <skos:prefLabel xml:lang="es">fascismo</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/jaca">
+    <skos:narrower>
+      <skos:Concept rdf:about="http://mydic/huesca">
+        <skos:narrower>
+          <skos:Concept rdf:about="http://mydic/españa">
+            <skos:prefLabel xml:lang="es">españa</skos:prefLabel>
+          </skos:Concept>
+        </skos:narrower>
+        <skos:prefLabel xml:lang="es">huesca</skos:prefLabel>
+      </skos:Concept>
+    </skos:narrower>
+    <skos:prefLabel xml:lang="es">jaca</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/computacion">
+    <skos:narrower rdf:resource="http://mydic/informatica"/>
+    <skos:prefLabel xml:lang="es">computacion</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/sabiñanigo">
+    <skos:narrower rdf:resource="http://mydic/huesca"/>
+    <skos:prefLabel xml:lang="es">sabiñanigo</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/crisis">
+    <skos:narrower>
+      <skos:Concept rdf:about="http://mydic/economia">
+        <skos:prefLabel xml:lang="es">economia</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">economica</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">economics</skos:prefLabel>
+      </skos:Concept>
+    </skos:narrower>
+    <skos:prefLabel xml:lang="es">crisis economica</skos:prefLabel>
+    <skos:altLabel xml:lang="es">inflacion</skos:altLabel>
+    <skos:altLabel xml:lang="es">recesion</skos:altLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/franquismo">
+    <skos:narrower rdf:resource="http://mydic/dictadura"/>
+    <skos:prefLabel xml:lang="es">franquismo</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/evolucioneconomica">
+    <skos:narrower rdf:resource="http://mydic/economia"/>
+    <skos:prefLabel xml:lang="es">evolucion economica</skos:prefLabel>
+    <skos:prefLabel xml:lang="es">prevision economica</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/ordenador">
+    <skos:narrower rdf:resource="http://mydic/informatica"/>
+    <skos:prefLabel xml:lang="es">ordenador</skos:prefLabel>
+    <skos:prefLabel xml:lang="es">computer</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/parkinson">
+    <skos:narrower>
+      <skos:Concept rdf:about="http://mydic/neurodegenerativas">
+        <skos:narrower>
+          <skos:Concept rdf:about="http://mydic/enfermedades">
+            <skos:narrower>
+              <skos:Concept rdf:about="http://mydic/medicina">
+                <skos:prefLabel xml:lang="es">medicina</skos:prefLabel>
+                <skos:prefLabel xml:lang="es">ingenieria biomedica</skos:prefLabel>
+              </skos:Concept>
+            </skos:narrower>
+            <skos:prefLabel xml:lang="es">enfermedades</skos:prefLabel>
+            <skos:prefLabel xml:lang="en">diseases</skos:prefLabel>
+          </skos:Concept>
+        </skos:narrower>
+        <skos:prefLabel xml:lang="es">neurodegenerativas</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">neurodegenerative</skos:prefLabel>
+      </skos:Concept>
+    </skos:narrower>
+    <skos:prefLabel xml:lang="es">parkinson</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/alzheimer">
+    <skos:narrower rdf:resource="http://mydic/neurodegenerativas"/>
+    <skos:prefLabel xml:lang="es">alzheimer</skos:prefLabel>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/biescas">
+    <skos:narrower rdf:resource="http://mydic/huesca"/>
+    <skos:prefLabel xml:lang="es">biescas</skos:prefLabel>
+  </skos:Concept>
+</rdf:RDF>
