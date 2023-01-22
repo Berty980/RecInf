@@ -1,0 +1,328 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:j.0="http://mydic/trabajo/"
+    xmlns:j.1="http://mydic/">
+  <owl:Class rdf:about="http://mydic/trabajo">
+    <rdfs:subClassOf>
+      <owl:Class rdf:about="http://mydic/documento"/>
+    </rdfs:subClassOf>
+  </owl:Class>
+  <owl:Class rdf:about="http://mydic/documento">
+    <rdfs:comment>Archivo de texto del trabajo publicado</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://mydic/entidad">
+    <rdfs:comment>Nombre de universidad, departamento u organizacion</rdfs:comment>
+  </owl:Class>
+  <owl:Class rdf:about="http://mydic/persona">
+    <rdfs:comment>Nombre de una persona</rdfs:comment>
+  </owl:Class>
+  <owl:ObjectProperty rdf:about="http://mydic/autor">
+    <rdfs:comment xml:lang="es">Autor del documento</rdfs:comment>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:range rdf:resource="http://mydic/persona"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://mydic/director">
+    <rdfs:comment xml:lang="es">Persona que dirige el proyecto</rdfs:comment>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:range rdf:resource="http://mydic/persona"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://mydic/tema">
+    <rdfs:comment xml:lang="es">Temas principales del documento</rdfs:comment>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </owl:ObjectProperty>
+  <owl:ObjectProperty rdf:about="http://mydic/departamento">
+    <rdfs:comment xml:lang="es">Organizacion a la que se atribuye la publicacion del documento</rdfs:comment>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:range rdf:resource="http://mydic/entidad"/>
+  </owl:ObjectProperty>
+  <owl:DatatypeProperty rdf:about="http://mydic/titulo">
+    <rdfs:comment xml:lang="es">Titulo del documento</rdfs:comment>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://mydic/descripcion">
+    <rdfs:comment xml:lang="es">Resumen del documento</rdfs:comment>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://mydic/nombre-persona">
+    <rdfs:comment xml:lang="es">Nombre completo de la persona</rdfs:comment>
+    <rdfs:domain rdf:resource="http://mydic/persona"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://mydic/fecha">
+    <rdfs:comment xml:lang="es">Fecha de publicacion del documento</rdfs:comment>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#gYear"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://mydic/identificador">
+    <rdfs:comment xml:lang="es">Identificador del documento</rdfs:comment>
+    <rdfs:domain rdf:resource="http://mydic/documento"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+  </owl:DatatypeProperty>
+  <owl:DatatypeProperty rdf:about="http://mydic/nombre-departamento">
+    <rdfs:comment xml:lang="es">Nombre de la entidad</rdfs:comment>
+    <rdfs:domain rdf:resource="http://mydic/entidad"/>
+    <rdfs:range rdf:resource="http://www.w3.org/2000/01/rdf-schema#Literal"/>
+  </owl:DatatypeProperty>
+  <j.0:TESIS rdf:about="http://mydic/documento/oai_zaguan.unizar.es_1880.xml">
+    <j.1:director>
+      <j.1:persona rdf:about="http://mydic/persona/miana_mena_francisco_javier">
+        <j.1:nombre-persona>miana mena, francisco javier</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:director>
+    <j.1:titulo>melatonina como protector frente a los radicales libres en la hepatotoxicidad por acidos biliares</j.1:titulo>
+    <j.1:descripcion>en esta investigacion se han utilizado homogeneizados y membranas aisladas de hepatocitos obtenidas de ratas macho sprague-dawley, en las que se valoro el dano oxidativo producido por los acidos biliares en los lipidos y proteinas en ausencia o presencia de fecl3 y acido ascorbico. el dano oxidativo a los lipidos se estudio mediante la cuantificacion de las concentraciones de malonaldehido y 4-hidroxialquenales (mda+4-hda), uno de los productos finales de la reaccion de peroxidacion lipidica, y la determinacion de restos carbonilo generados durante la oxidacion de las proteinas. se valoraron siete acidos biliares: acido ursodesoxicolico (uda), desoxicolico (dca), taurodesoxicolico (tda), quenodesoxicolico (qca), tauroquenodesoxicolico (tqa), litocolico (lca) y taurolitocolico (tlc). elegido el acido mas prooxidante, tlc, se realizaron cineticas de tiempo y concentracion para establecer sus condiciones optimas de dano oxidativo. finalmente se evaluo la capacidad antioxidante de melatonina. los resultados obtenidos demuestran que la exposicion in vitro de homogeneizados o membranas aisladas de tejido hepatico a siete acidos biliares provoco ataque por radicales libres a sus lipidos y proteinas. en todos los casos se constato carbonilacion proteica, mientras que solo los conjugados con taurina indujeron lipoperoxidacion en homogeneizados y dca, uda, lca y tlc en las membranas hepaticas. el tlc fue el acido biliar que implico mayores niveles de mda+4-hda y carbonilacion. las potencias relativas de cada acido biliar pueden deberse a su estructura quimica, que rige su grado de hidro-liposolubilidad y su capacidad de transferencia electronica. todos los acidos biliares estudiados potenciaron el efecto prooxidante del hierro salvo el qca. esta accion se observo mejor en las membranas que en los homogeneizados. nuevamente el mayor efecto lo produjo el tlc con excepcion de la oxidacion proteica de los homogeneizados, en las que solo el tda modifico las concentraciones de restos carbonilo con significacion estadistica. la incubacion con tlc de las membranas hepaticas en presencia y ausencia de cloruro ferrico y acido ascorbico aumento las oxidaciones lipidica y proteica de forma tiempo y concentracion dependientes. en los homogeneizados esta accion del tlc solo se observo potenciando la peroxidacion lipidica causada por el hierro. la melatonina previno de forma concentracion dependiente el dano oxidativo a los lipidos y proteinas causado por el tlc, especialmente a nivel de las proteinas de las membranas hepaticas. tambien redujo con gran eficiencia el efecto potenciador del tlc en la oxidacion causada por hierro y ascorbico. la accion protectora de la melatonina in vitro frente a la lesion oxidativa causada por acidos biliares refuerza la necesidad de realizar mas estudios farmacologicos que evaluen el papel de la melatonina en la prevencion de la hepatotoxicidad de las patologias colestaticas mediada por radicales libres. </j.1:descripcion>
+    <j.1:identificador>http://zaguan.unizar.es/record/1880</j.1:identificador>
+    <j.1:fecha>2008</j.1:fecha>
+    <j.1:autor>
+      <j.1:persona rdf:about="http://mydic/persona/fuentes_broto_lorena">
+        <j.1:nombre-persona>fuentes broto, lorena</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:autor>
+    <j.1:director>
+      <j.1:persona rdf:about="http://mydic/persona/garcia_garcia_jose_joaquin">
+        <j.1:nombre-persona>garcia garcia, jose joaquin</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:director>
+    <j.1:director>
+      <j.1:persona rdf:about="http://mydic/persona/martinez_ballarin_enrique">
+        <j.1:nombre-persona>martinez ballarin, enrique</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:director>
+    <j.1:departamento>
+      <j.1:entidad rdf:about="http://mydic/entidad/departamento_de_farmacologia_y_fisiologia">
+        <j.1:nombre-departamento>universidad de zaragoza; departamento de farmacologia y fisiologia</j.1:nombre-departamento>
+      </j.1:entidad>
+    </j.1:departamento>
+  </j.0:TESIS>
+  <j.0:TESIS rdf:about="http://mydic/documento/oai_zaguan.unizar.es_1877.xml">
+    <j.1:departamento>
+      <j.1:entidad rdf:about="http://mydic/entidad/departamento_de_fisica_de_la_materia_condensada">
+        <j.1:nombre-departamento>universidad de zaragoza; departamento de fisica de la materia condensada</j.1:nombre-departamento>
+      </j.1:entidad>
+    </j.1:departamento>
+    <j.1:director>
+      <j.1:persona rdf:about="http://mydic/persona/moreno_yamir">
+        <j.1:nombre-persona>moreno, yamir</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:director>
+    <j.1:director>
+      <j.1:persona rdf:about="http://mydic/persona/floria_luis_m.">
+        <j.1:nombre-persona>floria, luis m.</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:director>
+    <j.1:autor>
+      <j.1:persona rdf:about="http://mydic/persona/gomez_gardenes_jesus">
+        <j.1:nombre-persona>gomez gardenes, jesus</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:autor>
+    <j.1:fecha>2007</j.1:fecha>
+    <j.1:descripcion>resumen esta tesis doctoral aborda el estudio de sistemas de muchos elementos (sistemas discretos) interactuantes. la fenomenologia presente en estos sistemas esta dada por la presencia de dos ingredientes fundamentales: (i) complejidad dinamica: las ecuaciones del movimiento que rigen la evolucion de los constituyentes son no lineales de manera que raramente podremos encontrar soluciones analiticas. en el espacio de fases de estos sistemas pueden coexistir diferentes tipos de trayectorias dinamicas (multiestabilidad) y su topologia puede variar enormemente dependiendo de dos parametros usados en las ecuaciones. la conjuncion de dinamica no lineal y sistemas de muchos grados de libertad (como los que aqui se estudian) da lugar a propiedades emergentes como la existencia de soluciones localizadas en el espacio, sincronizacion, caos espacio-temporal, formacion de patrones, etc... (ii) complejidad estructural: se refiere a la existencia de un alto grado de aleatoriedad en el patron de las interacciones entre los componentes. en la mayoria de los sistemas estudiados esta aleatoriedad se presenta de forma que la descripcion de la influencia del entorno sobre un unico elemento del sistema no puede describirse mediante una aproximacion de campo medio. el estudio de estos dos ingredientes en sistemas extendidos se realizara de forma separada (partes i y ii de esta tesis) y conjunta (parte iii). si bien en los dos primeros casos la fenomenologia introducida por cada fuente de complejidad viene siendo objeto de amplios estudios independientes a lo largo de los ultimos anos, la conjuncion de ambas da lugar a un campo abierto y enormemente prometedor, donde la interdisciplinariedad concerniente a los campos de aplicacion implica un amplio esfuerzo de diversas comunidades cientificas. en particular, este es el caso del estudio de la dinamica en sistemas biologicos cuyo analisis es dificil de abordar con tecnicas exclusivas de la bioquimica, la fisica estadistica o la fisica matematica. en definitiva, el objetivo marcado en esta tesis es estudiar por separado dos fuentes de complejidad inherentes a muchos sistemas de interes para, finalmente, estar en disposicion de atacar con nuevas perspectivas problemas relevantes para la fisica de procesos celulares, la neurociencia, dinamica evolutiva, etc... </j.1:descripcion>
+    <j.1:identificador>http://zaguan.unizar.es/record/1877</j.1:identificador>
+    <j.1:titulo>complex systems: nonlinearity and structural complexity in spatially extended and discrete systems</j.1:titulo>
+  </j.0:TESIS>
+  <skos:Concept rdf:about="http://mydic/computacion">
+    <skos:prefLabel xml:lang="es">computacion</skos:prefLabel>
+    <skos:broader>
+      <skos:Concept rdf:about="http://mydic/informatica">
+        <skos:prefLabel xml:lang="en">computer science</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">informatics</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">informatica</skos:prefLabel>
+      </skos:Concept>
+    </skos:broader>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/sabiñanigo">
+    <skos:prefLabel xml:lang="es">sabiñanigo</skos:prefLabel>
+    <skos:broader>
+      <skos:Concept rdf:about="http://mydic/huesca">
+        <skos:prefLabel xml:lang="es">huesca</skos:prefLabel>
+        <skos:broader>
+          <skos:Concept rdf:about="http://mydic/españa">
+            <skos:prefLabel xml:lang="es">españa</skos:prefLabel>
+          </skos:Concept>
+        </skos:broader>
+      </skos:Concept>
+    </skos:broader>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/franquismo">
+    <skos:prefLabel xml:lang="es">franquismo</skos:prefLabel>
+    <skos:broader>
+      <skos:Concept rdf:about="http://mydic/dictadura">
+        <skos:prefLabel xml:lang="es">presos politicos</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">represion politica</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">dictadura</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">caciquismo</skos:prefLabel>
+      </skos:Concept>
+    </skos:broader>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/evolucioneconomica">
+    <skos:prefLabel xml:lang="es">prevision economica</skos:prefLabel>
+    <skos:prefLabel xml:lang="es">evolucion economica</skos:prefLabel>
+    <skos:broader>
+      <skos:Concept rdf:about="http://mydic/economia">
+        <skos:prefLabel xml:lang="en">economics</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">economica</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">economia</skos:prefLabel>
+      </skos:Concept>
+    </skos:broader>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/biescas">
+    <skos:prefLabel xml:lang="es">biescas</skos:prefLabel>
+    <skos:broader rdf:resource="http://mydic/huesca"/>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/programacion">
+    <skos:prefLabel xml:lang="en">programming</skos:prefLabel>
+    <skos:prefLabel xml:lang="es">programacion</skos:prefLabel>
+    <skos:broader rdf:resource="http://mydic/informatica"/>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/filogenetica">
+    <skos:prefLabel xml:lang="en">phylogenetics</skos:prefLabel>
+    <skos:prefLabel xml:lang="es">filogenetica</skos:prefLabel>
+    <skos:broader>
+      <skos:Concept rdf:about="http://mydic/bioinformatica">
+        <skos:prefLabel xml:lang="en">computational biology</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">biologia computacional</skos:prefLabel>
+        <skos:prefLabel xml:lang="en">bioinformatics</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">bioinformatica</skos:prefLabel>
+      </skos:Concept>
+    </skos:broader>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/fascismo">
+    <skos:prefLabel xml:lang="es">fascismo</skos:prefLabel>
+    <skos:broader rdf:resource="http://mydic/dictadura"/>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/jaca">
+    <skos:prefLabel xml:lang="es">jaca</skos:prefLabel>
+    <skos:broader rdf:resource="http://mydic/huesca"/>
+  </skos:Concept>
+  <j.0:TESIS rdf:about="http://mydic/documento/oai_zaguan.unizar.es_1879.xml">
+    <j.1:departamento>
+      <j.1:entidad rdf:about="http://mydic/entidad/departamento_de_historia_moderna_y_contemporanea">
+        <j.1:nombre-departamento>universidad de zaragoza; departamento de historia moderna y contemporanea</j.1:nombre-departamento>
+      </j.1:entidad>
+    </j.1:departamento>
+    <j.1:director>
+      <j.1:persona rdf:about="http://mydic/persona/latorre_ciria_jose_manuel">
+        <j.1:nombre-persona>latorre ciria, jose manuel</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:director>
+    <j.1:autor>
+      <j.1:persona rdf:about="http://mydic/persona/cutanda_perez_eloy_victor">
+        <j.1:nombre-persona>cutanda perez, eloy victor</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:autor>
+    <j.1:fecha>2008</j.1:fecha>
+    <j.1:descripcion>la necesidad de organizar el poblamiento de esta tierra y el aprovechamiento de sus recursos agropastoriles y forestales es la clave que propiciara el nacimiento en la edad media de la comunidad de aldeas de albarracin, al sudoeste de aragon, siguiendo un modelo comun al de otras zonas de la peninsula iberica. los siglos xvi y xvii vendran a confirmar el desarrollo pleno de esta institucion. la tesis contempla cuatro grandes apartados. el primero se acerca al fenomeno de las comunidades de villa y tierra. la parte dedicada a la poblacion ofrece una vision demografica introductoria, estrechamente ligada al estudio de la hacienda de la comunidad de aldeas, tercera parte del trabajo. la ultima seccion se centra en las elites que ejercen el predominio politico, social y economico en la comunidad, en las diferentes estrategias adoptadas por las familias para su permanencia y promocion en el ejercicio del poder, en los mecanismos de acceso al mismo y en la forma en que esas familias gestionan los pequenos y grandes conflictos. el trabajo se completa con una serie de apendices: fichero onomastico, cuadros genealogicos y documentos transcritos. </j.1:descripcion>
+    <j.1:identificador>http://zaguan.unizar.es/record/1879</j.1:identificador>
+    <j.1:titulo>la comunidad de albarracin en los siglos xvi y xvii (hacienda, elites y poder)</j.1:titulo>
+  </j.0:TESIS>
+  <skos:Concept rdf:about="http://mydic/crisis">
+    <skos:altLabel xml:lang="es">recesion</skos:altLabel>
+    <skos:altLabel xml:lang="es">inflacion</skos:altLabel>
+    <skos:prefLabel xml:lang="es">crisis economica</skos:prefLabel>
+    <skos:broader rdf:resource="http://mydic/economia"/>
+  </skos:Concept>
+  <j.0:TFM rdf:about="http://mydic/documento/oai_zaguan.unizar.es_9392.xml">
+    <j.1:departamento>
+      <j.1:entidad rdf:about="http://mydic/entidad/departamento_de_geografia_y_ordenacion_del_territorio">
+        <j.1:nombre-departamento>universidad de zaragoza; departamento de geografia y ordenacion del territorio</j.1:nombre-departamento>
+      </j.1:entidad>
+    </j.1:departamento>
+    <j.1:director>
+      <j.1:persona rdf:about="http://mydic/persona/julian_asuncion">
+        <j.1:nombre-persona>julian, asuncion</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:director>
+    <j.1:autor>
+      <j.1:persona rdf:about="http://mydic/persona/alvarez_padilla_patricia">
+        <j.1:nombre-persona>alvarez padilla patricia</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:autor>
+    <j.1:fecha>2012</j.1:fecha>
+    <j.1:descripcion>el uso de la  cartografia es una una herramienta que contribuye al conocimiento ambiental y territorial. el agua es una de las principales fuentes de suministro para uso domestico y para el riego en muchas partes de espana y del mundo.  por lo que es importante determinar la contaminacion inducida por el regadio y su relacion con las practicas culturales y el manejo del riego.   con el uso de informacion cartografica permite determinar las superficies de cada unidad homogenea constituida por tipo de suelo-sistema de riego-cultivo.  a traves de la determinacion de las superficies de los diferentes cultivos que ocupan las unidades de suelo en la zona de estudio y con su respectivo sistema de riego, se puede calcular el balance de agua diario en el suelo que conduce a la obtencion de la etr, un termino fundamental del balance de agua.</j.1:descripcion>
+    <j.1:identificador>http://zaguan.unizar.es/record/9392</j.1:identificador>
+    <j.1:titulo>balance de agua y nutrientes en cuencas de regadio del sistema de riegos del alto aragon: delineacion de cultivos y sistemas de riego</j.1:titulo>
+  </j.0:TFM>
+  <j.0:PFC rdf:about="http://mydic/documento/oai_zaguan.unizar.es_9407.xml">
+    <j.1:tema rdf:resource="http://mydic/economia"/>
+    <j.1:departamento>
+      <j.1:entidad rdf:about="http://mydic/entidad/departamento_de_ciencias_agrarias_y_del_medio_natural;_area_de_ingenieria_agroforestal">
+        <j.1:nombre-departamento>universidad de zaragoza; departamento de ciencias agrarias y del medio natural; area de ingenieria agroforestal</j.1:nombre-departamento>
+      </j.1:entidad>
+    </j.1:departamento>
+    <j.1:director>
+      <j.1:persona rdf:about="http://mydic/persona/garcia_ramos_francisco_javier">
+        <j.1:nombre-persona>garcia ramos, francisco javier</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:director>
+    <j.1:autor>
+      <j.1:persona rdf:about="http://mydic/persona/ventura_villarreal_marcos">
+        <j.1:nombre-persona>ventura villarreal, marcos</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:autor>
+    <j.1:fecha>2012</j.1:fecha>
+    <j.1:descripcion>este documento tiene por objeto satisfacer los requerimientos tecnicos a nivel de proyecto de ejecucion, de las obras necesarias para la construccion de las infraestructuras y dimensionamiento de los equipos necesarios para el correcto funcionamiento de la instalacion de recogida de ciertos tipos de residuos solidos urbanos en letux (zaragoza). la obra permitira la gestion correcta y posterior valorizacion de los residuos, y optimizara el coste del transporte, almacenamiento y transferencia de las distintas fracciones hasta los centros de tratamiento final. es un tema directamente relacionado con el medio ambiente y con el desarrollo sostenible del medio rural, ya que las politicas ambientales actuales tienden a la restauracion de espacios degradados y clausura de las escombreras y pequenos vertederos municipales, por lo que en los pueblos esta surgiendo el problema de que hacer con los residuos generados. con la construccion de esta instalacion lo que se pretende es la creacion de un espacio donde poder depositar residuos para su posterior reciclado o valorizacion, evitando que esten dispersos por el entorno, haciendo un uso racional del medio natural para un desarrollo sostenible del mismo. se estima necesaria la construccion de un punto de recogida selectiva que dote de unas instalaciones susceptibles de recibir los residuos, separados en contenedores que permitan la valorizacion optima de las fracciones recogidas, con zonas para el tratamiento temporal de todas las fracciones, facilidad de triaje y acceso, permitiendo su explotacion y mantenimiento de forma economica y sencilla. para definir las actuaciones a realizar de cara a la correcta ejecucion de las areas y estructuras se debera tener en cuenta: - la parcela donde se situaran las instalaciones - construccion de las areas de almacenamiento - instalaciones con la infraestructura necesaria para llevar a cabo la correcta transferencia de los residuos. a parte se atendera a la senalizacion, drenaje y cerramiento de las instalaciones. sera necesario equipar la instalacion con lo equipos necesarios para su correcto funcionamiento.</j.1:descripcion>
+    <j.1:identificador>http://zaguan.unizar.es/record/9407</j.1:identificador>
+    <j.1:titulo>proyecto de construccion de una instalacion de recogida selectiva de residuos solidos urbanos en letux (zaragoza)</j.1:titulo>
+  </j.0:PFC>
+  <skos:Concept rdf:about="http://mydic/ordenador">
+    <skos:prefLabel xml:lang="es">computer</skos:prefLabel>
+    <skos:prefLabel xml:lang="es">ordenador</skos:prefLabel>
+    <skos:broader rdf:resource="http://mydic/informatica"/>
+  </skos:Concept>
+  <j.0:TFG rdf:about="http://mydic/documento/oai_zaguan.unizar.es_9461.xml">
+    <j.1:departamento>
+      <j.1:entidad rdf:about="http://mydic/entidad/departamento_de_linguistica_general_e_hispanica;_area_de_periodismo">
+        <j.1:nombre-departamento>universidad de zaragoza; departamento de linguistica general e hispanica; area de periodismo</j.1:nombre-departamento>
+      </j.1:entidad>
+    </j.1:departamento>
+    <j.1:director>
+      <j.1:persona rdf:about="http://mydic/persona/gomez_patino_maria">
+        <j.1:nombre-persona>gomez patino, maria</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:director>
+    <j.1:autor>
+      <j.1:persona rdf:about="http://mydic/persona/lafuente_martinez_blanca">
+        <j.1:nombre-persona>lafuente martinez, blanca</j.1:nombre-persona>
+      </j.1:persona>
+    </j.1:autor>
+    <j.1:fecha>2012</j.1:fecha>
+    <j.1:descripcion>los blogs pro-anorexia permiten que las enfermas se expresen libremente al margen de la opinion publica dominante. los medios de comunicacion los localizaron en 2004, los enfocaron como un problema necesario de erradicar y los convirtieron en asunto de prioridad publica e institucional, tal y como postula la teoria de la agenda-setting.  durante un ano, los blogs se vieron sometidos a un control mediatico y de las autoridades sanitarias. tras este periodo el tema desaparecio tanto de las agendas periodisticas como politicas, convirtiendose en “latentes”  para la opinion publica. en la actualidad, el fenomeno bloguero pro-anorexia persiste y continua expandiendose. mediante analisis de contenido y del discurso de una seleccion de cuatro blogs se tratara de reflejar la realidad del movimiento pro-anorexia. se tratara de ofrecer una nueva perspectiva para que las autoridades sanitarias aborden el problema.</j.1:descripcion>
+    <j.1:identificador>http://zaguan.unizar.es/record/9461</j.1:identificador>
+    <j.1:titulo>la anorexia en blogs: para un cambio de perspectiva de las autoridades sanitarias y de la opinion publica</j.1:titulo>
+  </j.0:TFG>
+  <skos:Concept rdf:about="http://mydic/parkinson">
+    <skos:prefLabel xml:lang="es">parkinson</skos:prefLabel>
+    <skos:broader>
+      <skos:Concept rdf:about="http://mydic/neurodegenerativas">
+        <skos:prefLabel xml:lang="en">neurodegenerative</skos:prefLabel>
+        <skos:prefLabel xml:lang="es">neurodegenerativas</skos:prefLabel>
+        <skos:broader>
+          <skos:Concept rdf:about="http://mydic/enfermedades">
+            <skos:prefLabel xml:lang="en">diseases</skos:prefLabel>
+            <skos:prefLabel xml:lang="es">enfermedades</skos:prefLabel>
+            <skos:broader>
+              <skos:Concept rdf:about="http://mydic/medicina">
+                <skos:prefLabel xml:lang="es">ingenieria biomedica</skos:prefLabel>
+                <skos:prefLabel xml:lang="es">medicina</skos:prefLabel>
+              </skos:Concept>
+            </skos:broader>
+          </skos:Concept>
+        </skos:broader>
+      </skos:Concept>
+    </skos:broader>
+  </skos:Concept>
+  <skos:Concept rdf:about="http://mydic/alzheimer">
+    <skos:prefLabel xml:lang="es">alzheimer</skos:prefLabel>
+    <skos:broader rdf:resource="http://mydic/neurodegenerativas"/>
+  </skos:Concept>
+  <j.1:trabajo rdf:about="http://mydic/trabajo/TFG"/>
+  <j.1:trabajo rdf:about="http://mydic/trabajo/PFC"/>
+  <j.1:trabajo rdf:about="http://mydic/trabajo/TFM"/>
+  <j.1:trabajo rdf:about="http://mydic/trabajo/TESIS"/>
+</rdf:RDF>

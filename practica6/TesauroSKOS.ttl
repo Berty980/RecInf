@@ -10,12 +10,12 @@
 
 <http://mydic/fascismo>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/dictadura> ;
+        skos:broader   <http://mydic/dictadura> ;
         skos:prefLabel  "fascismo"@es .
 
 <http://mydic/franquismo>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/dictadura> ;
+        skos:broader   <http://mydic/dictadura> ;
         skos:prefLabel  "franquismo"@es .
 
 <http://mydic/españa>
@@ -24,22 +24,22 @@
 
 <http://mydic/huesca>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/españa> ;
+        skos:broader   <http://mydic/españa> ;
         skos:prefLabel  "huesca"@es .
 
 <http://mydic/jaca>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/huesca> ;
+        skos:broader   <http://mydic/huesca> ;
         skos:prefLabel  "jaca"@es .
 
 <http://mydic/sabiñanigo>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/huesca> ;
+        skos:broader   <http://mydic/huesca> ;
         skos:prefLabel  "sabiñanigo"@es .
 
 <http://mydic/biescas>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/huesca> ;
+        skos:broader   <http://mydic/huesca> ;
         skos:prefLabel  "biescas"@es .
 
 <http://mydic/medicina>
@@ -49,24 +49,24 @@
 
 <http://mydic/enfermedades>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/medicina> ;
+        skos:broader   <http://mydic/medicina> ;
         skos:prefLabel  "enfermedades"@es ;
         skos:prefLabel  "diseases"@en .
 
 <http://mydic/neurodegenerativas>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/enfermedades> ;
+        skos:broader   <http://mydic/enfermedades> ;
         skos:prefLabel  "neurodegenerativas"@es ;
         skos:prefLabel  "neurodegenerative"@en .
 
 <http://mydic/alzheimer>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/neurodegenerativas> ;
+        skos:broader   <http://mydic/neurodegenerativas> ;
         skos:prefLabel  "alzheimer"@es .
 
 <http://mydic/parkinson>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/neurodegenerativas> ;
+        skos:broader   <http://mydic/neurodegenerativas> ;
         skos:prefLabel  "parkinson"@es .
 
 <http://mydic/economia>
@@ -77,13 +77,13 @@
 
 <http://mydic/evolucioneconomica>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/economia> ;
+        skos:broader   <http://mydic/economia> ;
         skos:prefLabel  "evolucion economica"@es ;
         skos:prefLabel  "prevision economica"@es .
 
 <http://mydic/crisis>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/economia> ;
+        skos:broader   <http://mydic/economia> ;
         skos:prefLabel  "crisis economica"@es ;
         skos:altLabel   "inflacion"@es ;
         skos:altLabel   "recesion"@es .
@@ -97,7 +97,7 @@
 
 <http://mydic/filogenetica>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/bioinformatica> ;
+        skos:broader   <http://mydic/bioinformatica> ;
         skos:prefLabel  "filogenetica"@es ;
         skos:prefLabel  "phylogenetics"@en .
 
@@ -109,17 +109,17 @@
 
 <http://mydic/computacion>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/informatica> ;
+        skos:broader   <http://mydic/informatica> ;
         skos:prefLabel  "computacion"@es .
 
 <http://mydic/ordenador>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/informatica> ;
+        skos:broader   <http://mydic/informatica> ;
         skos:prefLabel  "ordenador"@es ;
         skos:prefLabel  "computer"@es .
 
 <http://mydic/programacion>
         a               skos:Concept ;
-        skos:narrower   <http://mydic/informatica> ;
+        skos:broader   <http://mydic/informatica> ;
         skos:prefLabel  "programacion"@es ;
         skos:prefLabel  "programming"@en .

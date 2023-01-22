@@ -30,7 +30,7 @@ public class InferenciaOWL2tesauro{
 		Model owlModel = FileManager.get().loadModel("ModeloRDFS.ttl", "TURTLE");
 		Model skosModel = FileManager.get().loadModel("TesauroSKOS.ttl", "TURTLE");
 		//owlModel.add(skosModel);
-		skosModel.write(new FileOutputStream("Tesauro.rdf"));
+		owlModel.write(new FileOutputStream("ModeloOWL.rdf"));
 		
 		//mezclamos modelo y coleccion
 		Model union = ModelFactory.createUnion(model, colec);

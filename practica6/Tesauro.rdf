@@ -4,111 +4,111 @@
   <skos:Concept rdf:about="http://mydic/programacion">
     <skos:prefLabel xml:lang="en">programming</skos:prefLabel>
     <skos:prefLabel xml:lang="es">programacion</skos:prefLabel>
-    <skos:narrower>
+    <skos:broader>
       <skos:Concept rdf:about="http://mydic/informatica">
         <skos:prefLabel xml:lang="en">computer science</skos:prefLabel>
         <skos:prefLabel xml:lang="en">informatics</skos:prefLabel>
         <skos:prefLabel xml:lang="es">informatica</skos:prefLabel>
       </skos:Concept>
-    </skos:narrower>
+    </skos:broader>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/filogenetica">
     <skos:prefLabel xml:lang="en">phylogenetics</skos:prefLabel>
     <skos:prefLabel xml:lang="es">filogenetica</skos:prefLabel>
-    <skos:narrower>
+    <skos:broader>
       <skos:Concept rdf:about="http://mydic/bioinformatica">
         <skos:prefLabel xml:lang="en">computational biology</skos:prefLabel>
         <skos:prefLabel xml:lang="es">biologia computacional</skos:prefLabel>
         <skos:prefLabel xml:lang="en">bioinformatics</skos:prefLabel>
         <skos:prefLabel xml:lang="es">bioinformatica</skos:prefLabel>
       </skos:Concept>
-    </skos:narrower>
+    </skos:broader>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/fascismo">
     <skos:prefLabel xml:lang="es">fascismo</skos:prefLabel>
-    <skos:narrower>
+    <skos:broader>
       <skos:Concept rdf:about="http://mydic/dictadura">
         <skos:prefLabel xml:lang="es">presos politicos</skos:prefLabel>
         <skos:prefLabel xml:lang="es">represion politica</skos:prefLabel>
         <skos:prefLabel xml:lang="es">dictadura</skos:prefLabel>
         <skos:prefLabel xml:lang="es">caciquismo</skos:prefLabel>
       </skos:Concept>
-    </skos:narrower>
+    </skos:broader>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/crisis">
     <skos:altLabel xml:lang="es">recesion</skos:altLabel>
     <skos:altLabel xml:lang="es">inflacion</skos:altLabel>
     <skos:prefLabel xml:lang="es">crisis economica</skos:prefLabel>
-    <skos:narrower>
+    <skos:broader>
       <skos:Concept rdf:about="http://mydic/economia">
         <skos:prefLabel xml:lang="en">economics</skos:prefLabel>
         <skos:prefLabel xml:lang="es">economica</skos:prefLabel>
         <skos:prefLabel xml:lang="es">economia</skos:prefLabel>
       </skos:Concept>
-    </skos:narrower>
+    </skos:broader>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/jaca">
     <skos:prefLabel xml:lang="es">jaca</skos:prefLabel>
-    <skos:narrower>
+    <skos:broader>
       <skos:Concept rdf:about="http://mydic/huesca">
         <skos:prefLabel xml:lang="es">huesca</skos:prefLabel>
-        <skos:narrower>
+        <skos:broader>
           <skos:Concept rdf:about="http://mydic/españa">
             <skos:prefLabel xml:lang="es">españa</skos:prefLabel>
           </skos:Concept>
-        </skos:narrower>
+        </skos:broader>
       </skos:Concept>
-    </skos:narrower>
+    </skos:broader>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/franquismo">
     <skos:prefLabel xml:lang="es">franquismo</skos:prefLabel>
-    <skos:narrower rdf:resource="http://mydic/dictadura"/>
+    <skos:broader rdf:resource="http://mydic/dictadura"/>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/evolucioneconomica">
     <skos:prefLabel xml:lang="es">prevision economica</skos:prefLabel>
     <skos:prefLabel xml:lang="es">evolucion economica</skos:prefLabel>
-    <skos:narrower rdf:resource="http://mydic/economia"/>
+    <skos:broader rdf:resource="http://mydic/economia"/>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/computacion">
     <skos:prefLabel xml:lang="es">computacion</skos:prefLabel>
-    <skos:narrower rdf:resource="http://mydic/informatica"/>
+    <skos:broader rdf:resource="http://mydic/informatica"/>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/ordenador">
     <skos:prefLabel xml:lang="es">computer</skos:prefLabel>
     <skos:prefLabel xml:lang="es">ordenador</skos:prefLabel>
-    <skos:narrower rdf:resource="http://mydic/informatica"/>
+    <skos:broader rdf:resource="http://mydic/informatica"/>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/parkinson">
     <skos:prefLabel xml:lang="es">parkinson</skos:prefLabel>
-    <skos:narrower>
+    <skos:broader>
       <skos:Concept rdf:about="http://mydic/neurodegenerativas">
         <skos:prefLabel xml:lang="en">neurodegenerative</skos:prefLabel>
         <skos:prefLabel xml:lang="es">neurodegenerativas</skos:prefLabel>
-        <skos:narrower>
+        <skos:broader>
           <skos:Concept rdf:about="http://mydic/enfermedades">
             <skos:prefLabel xml:lang="en">diseases</skos:prefLabel>
             <skos:prefLabel xml:lang="es">enfermedades</skos:prefLabel>
-            <skos:narrower>
+            <skos:broader>
               <skos:Concept rdf:about="http://mydic/medicina">
                 <skos:prefLabel xml:lang="es">ingenieria biomedica</skos:prefLabel>
                 <skos:prefLabel xml:lang="es">medicina</skos:prefLabel>
               </skos:Concept>
-            </skos:narrower>
+            </skos:broader>
           </skos:Concept>
-        </skos:narrower>
+        </skos:broader>
       </skos:Concept>
-    </skos:narrower>
+    </skos:broader>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/sabiñanigo">
     <skos:prefLabel xml:lang="es">sabiñanigo</skos:prefLabel>
-    <skos:narrower rdf:resource="http://mydic/huesca"/>
+    <skos:broader rdf:resource="http://mydic/huesca"/>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/alzheimer">
     <skos:prefLabel xml:lang="es">alzheimer</skos:prefLabel>
-    <skos:narrower rdf:resource="http://mydic/neurodegenerativas"/>
+    <skos:broader rdf:resource="http://mydic/neurodegenerativas"/>
   </skos:Concept>
   <skos:Concept rdf:about="http://mydic/biescas">
     <skos:prefLabel xml:lang="es">biescas</skos:prefLabel>
-    <skos:narrower rdf:resource="http://mydic/huesca"/>
+    <skos:broader rdf:resource="http://mydic/huesca"/>
   </skos:Concept>
 </rdf:RDF>

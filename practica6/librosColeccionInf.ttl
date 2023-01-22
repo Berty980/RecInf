@@ -47,10 +47,6 @@
         skos:prefLabel           "Biosfera"@es ;
         skos:semanticRelation    <http://www.gemet.com/ecologia> , <http://www.gemet.com/ciclodelavida> , <http://www.gemet.com/procesobiologico> , <http://www.gemet.com/actividadbiologica> .
 
-[ a            owl:Class ;
-  owl:unionOf  ( skos:Concept skos:Collection )
-] .
-
 <http://www.gemet.com/procesobiologico>
         a                        owl:NamedIndividual , owl:Thing , skos:Concept ;
         owl:sameAs               <http://www.gemet.com/procesobiologico> ;
@@ -60,6 +56,10 @@
         skos:narrowerTransitive  <http://www.gemet.com/actividadbiologica> , <http://www.gemet.com/ciclodelavida> ;
         skos:prefLabel           "Proceso biologico"@es ;
         skos:semanticRelation    <http://www.gemet.com/actividadbiologica> , <http://www.gemet.com/biosfera> , <http://www.gemet.com/ciclodelavida> .
+
+[ a            owl:Class ;
+  owl:unionOf  ( skos:Concept skos:Collection )
+] .
 
 <http://www.gemet.com/ciclodelavida>
         a                       skos:Concept , owl:NamedIndividual , owl:Thing ;

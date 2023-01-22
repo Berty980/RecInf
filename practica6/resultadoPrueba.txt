@@ -1,0 +1,10 @@
+206-4	oai_zaguan.unizar.es_1877.xml
+206-4	oai_zaguan.unizar.es_1880.xml
+205-4	oai_zaguan.unizar.es_1877.xml
+205-4	oai_zaguan.unizar.es_1880.xml
+205-4	oai_zaguan.unizar.es_1877.xml
+203-1	oai_zaguan.unizar.es_1877.xml
+203-1	oai_zaguan.unizar.es_1880.xml
+201-1	oai_zaguan.unizar.es_1880.xml
+201-1	oai_zaguan.unizar.es_1877.xml
+201-1	oai_zaguan.unizar.es_1879.xml

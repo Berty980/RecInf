@@ -181,7 +181,8 @@ public class Evaluation {
     double ap = 0;
     double precision = (double) tp / (double) tpfp;
     double recall = (double) tp / (double) tpfn;
-    double f1 = (2.0 * precision * recall) / (precision + recall);
+    double f1 = 0;
+    if((precision + recall) != 0) f1 = (2.0 * precision * recall) / (precision + recall);
 
     stats.put("precision", precision);
     stats.put("recall", recall);
@@ -198,7 +199,9 @@ public class Evaluation {
     }
 
     for (double p : precisions) ap += p;
-    stats.put("average_precision", ap / precisions.size());
+    if(precisions.size() == 0) ap = 0;
+    else ap = ap / precisions.size();
+    stats.put("average_precision", ap);
 
     for (double i = 0.000; i < 1.000; i += 0.100) {
       double ip = 0.0;
@@ -259,7 +262,7 @@ public class Evaluation {
     }
 
     for (k = 0; k < total.length; k++) {
-      total[k] = total[k] / size;
+      total[k] = total[k] / 5;
     }
     k = 0;
     stats.append("TOTAL").append("\n");

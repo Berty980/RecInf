@@ -14,9 +14,9 @@
         a             owl:Class ;
         rdfs:comment  "Nombre de una persona" .
 
-<http://mydic/documento>
-        a             owl:Class ;
-        rdfs:comment  "Archivo de texto del trabajo publicado" .
+<http://mydic/trabajo>
+        a               owl:Class ;
+        rdfs:subClassOf <http://mydic/documento> .
 
 <http://mydic/tema>
         a             owl:ObjectProperty ;
@@ -58,7 +58,7 @@
         a             owl:DatatypeProperty ;
         rdfs:comment  "Fecha de publicacion del documento"@es ;
         rdfs:domain   <http://mydic/documento> ;
-        rdfs:range    <http://www.w3.org/2001/XMLSchema#date> .
+        rdfs:range    <http://www.w3.org/2001/XMLSchema#gYear> .
 
 <http://mydic/titulo>
         a             owl:DatatypeProperty ;
@@ -66,8 +66,14 @@
         rdfs:domain   <http://mydic/documento> ;
         rdfs:range    rdfs:Literal .
 
-<http://mydic/tipo>
-        a             owl:ObjectProperty ;
-        rdfs:comment  "TFC, TFG o TFM"@es ;
-        rdfs:domain   <http://mydic/documento> ;
-        rdfs:range    <http://mydic/documento> .
+<http://mydic/nombre-persona>
+        a             owl:DatatypeProperty ;
+        rdfs:comment  "Nombre completo de la persona"@es ;
+        rdfs:domain   <http://mydic/persona> ;
+        rdfs:range    rdfs:Literal .
+
+<http://mydic/nombre-departamento>
+        a             owl:DatatypeProperty ;
+        rdfs:comment  "Nombre de la entidad"@es ;
+        rdfs:domain   <http://mydic/entidad> ;
+        rdfs:range    rdfs:Literal .
