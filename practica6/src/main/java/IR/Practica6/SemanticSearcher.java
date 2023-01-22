@@ -20,6 +20,7 @@ import org.apache.jena.tdb2.TDB2Factory;
 import org.apache.jena.util.FileManager;
 import org.apache.jena.vocabulary.DCTerms;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
+import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 
@@ -78,8 +79,8 @@ public class SemanticSearcher {
 		entDef.set("nombre-departamento", ResourceFactory.createProperty("http://mydic/nombre-departamento").asNode());
 		entDef.set("descripcion", ResourceFactory.createProperty("http://mydic/descripcion").asNode());
 		TextIndexConfig config = new TextIndexConfig(entDef);
-		config.setAnalyzer(new EnglishAnalyzer());
-		config.setQueryAnalyzer(new EnglishAnalyzer());
+		config.setAnalyzer(new SpanishAnalyzer());
+		config.setQueryAnalyzer(new SpanishAnalyzer());
 		config.setMultilingualSupport(true);
 
 		//definimos el repositorio indexado todo en disco
@@ -110,11 +111,12 @@ public class SemanticSearcher {
 					QuerySolution soln = results.nextSolution();
 					Resource x = soln.getResource("file");
 					Literal y = soln.getLiteral("scoretot");
+					Literal w = soln.getLiteral("score");
 					float score = 0.0f;
 					if(y != null) score = y.getFloat();
 					Resource z = soln.getResource("type");
 					String file = x.getURI().replace("http://mydic/documento/", "");
-					System.out.println("\t" + file + " : " + score + " : " + z);
+					System.out.println("\t" + file + " : " + score + " : " + z + " SUM: " + w);
 					salida.write(id + "\t" + file + "\n");
 				}
 			}
