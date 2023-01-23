@@ -57,18 +57,16 @@ public class SemanticGenerator {
 	    Model owlModel = FileManager.get().loadModel(owl);
 		Model skosModel = FileManager.get().loadModel(skos);
 		owlModel.add(skosModel);
-		
-		//Se separa la indexación del resto del programa por limpieza
+
 		indexar(docs, owlModel);
 		
 		File rdfSalida = new File(rdf);
 		try {
-			owlModel.write(new FileOutputStream(rdfSalida));
+			owlModel.write(new FileOutputStream(rdfSalida), "TURTLE");
 		} catch (IOException e) {
 			System.out.println("Hubo un problema en la creación del fichero rdf de salida.");
 			e.printStackTrace();
 		}
-	    
 	}
 	
 	static void indexar(String docP, Model owl) throws ParserConfigurationException, SAXException, IOException {
@@ -79,11 +77,10 @@ public class SemanticGenerator {
 			String[] files = dirDocumentos.list();
 			assert files != null;
 			for (String file : files) {
-				indexar((docP + "\\" + file), owl);
+				indexar((docP + "/" + file), owl);
 			}
 	        
 		} else {
-			
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder builder= factory.newDocumentBuilder();
 	        Document doc = builder.parse(docP);
@@ -91,36 +88,36 @@ public class SemanticGenerator {
 			Resource trabajo = owl.getResource("http://mydic/trabajo");
 	        Property tema = owl.getProperty("http://mydic/tema");
 	        
-	        Resource docLocal = owl.createResource("http://mydic/documento/" + docP.substring(docP.indexOf('\\') + 1));
+	        Resource document = owl.createResource("http://mydic/documento/" + docP.substring(docP.indexOf('/') + 1));
 
         	String tipo = doc.getElementsByTagName("dc:type").item(0).getTextContent();
 			tipo = tipo.substring(tipo.indexOf('-') + 1);
 	        Resource tipoTrabajo = owl.createResource("http://mydic/trabajo/"+tipo);
 			tipoTrabajo.addProperty(RDF.type, trabajo);
         	
-        	docLocal.addProperty(RDF.type, tipoTrabajo);
+        	document.addProperty(RDF.type, tipoTrabajo);
 
-	        String titulo = setProperties("dc:title", doc, owl, docLocal, "titulo");
+	        String titulo = setProperties("dc:title", doc, owl, document, "titulo");
 
-			setProperties("dc:identifier", doc, owl, docLocal, "identificador");
+			setProperties("dc:identifier", doc, owl, document, "identificador");
 
-			String descripcion = setProperties("dc:description", doc, owl, docLocal, "descripcion");
+			String descripcion = setProperties("dc:description", doc, owl, document, "descripcion");
 
-			setProperties("dc:date", doc, owl, docLocal, "fecha");
+			setProperties("dc:date", doc, owl, document, "fecha");
 
-			setPropertiesWithClass("dc:creator", doc, owl, docLocal, "autor");
+			setPropertiesWithClass("dc:creator", doc, owl, document, "autor");
 
-			setPropertiesWithClass("dc:contributor", doc, owl, docLocal, "director");
+			setPropertiesWithClass("dc:contributor", doc, owl, document, "director");
 
-			setPropertiesWithClass("dc:publisher", doc, owl, docLocal, "departamento");
+			setPropertiesWithClass("dc:publisher", doc, owl, document, "departamento");
 
-			setSubject("dc:subject", doc, owl, docLocal, tema, "");
+			setSubject("dc:subject", doc, owl, document, tema, "");
 
 			if(!descripcion.isEmpty())
-				setSubject("dc:subject", doc, owl, docLocal, tema, descripcion);
+				setSubject("dc:subject", doc, owl, document, tema, descripcion);
 
 			if(!titulo.isEmpty())
-				setSubject("dc:subject", doc, owl, docLocal, tema, titulo);
+				setSubject("dc:subject", doc, owl, document, tema, titulo);
 		}
 	}
 
@@ -131,6 +128,7 @@ public class SemanticGenerator {
 			data.append(elemento).append(" ");
 			Property propiedad = owl.createProperty("http://mydic/" + property);
 			resource.addProperty(propiedad, elemento);
+            System.out.println(doc.getDocumentURI());
 		}
 		return data.toString();
 	}
@@ -144,7 +142,7 @@ public class SemanticGenerator {
 				source = "entidad";
 				String entidad = elemento;
 				if(elemento.contains(";")) entidad = elemento.substring(elemento.indexOf(";") + 2);
-				urlName = entidad.replace(" ", "_");
+				urlName = entidad.replace(" ", "_").replace(";", "");
 				name = "nombre-departamento";
 			} else {
 				source = "persona";
@@ -161,6 +159,7 @@ public class SemanticGenerator {
 		}
 	}
 
+	// Para localizar temas en el tesauro
 	public static void setSubject(String tagName, Document doc, Model owl, Resource resource, Property property, String content) {
 		List<String> contenido;
 		if(content.isEmpty())
@@ -182,14 +181,14 @@ public class SemanticGenerator {
 		}
 	}
 
+	// Para obtener los distintos valores que pueda tener un documento (doc) para la misma propiedad (tagName)
 	public static List<String> getListString(String tagName, Document doc) {
         NodeList lista = doc.getElementsByTagName(tagName);
-        List<String> listaLK = new LinkedList<String>();
+        List<String> listaLK = new LinkedList<>();
 
         for (int i = 0; i < lista.getLength(); i++) {
             NodeList subLista = lista.item(i).getChildNodes();
             if (subLista.getLength() > 0) {
-            	//listaLK.add(subLista.item(0).getTextContent().toLowerCase());
             	listaLK.add(stripAccents(subLista.item(0).getTextContent().toLowerCase()));
             }
         }
@@ -197,6 +196,7 @@ public class SemanticGenerator {
 	}
 	
 	//https://stackoverflow.com/questions/15190656/easy-way-to-remove-accents-from-a-unicode-string
+	// Para quitar los acentos de las palabras
 	public static String stripAccents(String s) {
 	    s = Normalizer.normalize(s, Normalizer.Form.NFD);
 	    s = s.replaceAll("[\\p{InCombiningDiacriticalMarks}]", "");

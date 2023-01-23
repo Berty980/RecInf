@@ -11,15 +11,10 @@ import org.apache.jena.query.text.EntityDefinition;
 import org.apache.jena.query.text.TextDatasetFactory;
 import org.apache.jena.query.text.TextIndexConfig;
 import org.apache.jena.rdf.model.Literal;
-import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.riot.RDFDataMgr;
-import org.apache.jena.sparql.core.DatasetGraph;
 import org.apache.jena.tdb2.TDB2Factory;
-import org.apache.jena.util.FileManager;
-import org.apache.jena.vocabulary.DCTerms;
-import org.apache.lucene.analysis.en.EnglishAnalyzer;
 import org.apache.lucene.analysis.es.SpanishAnalyzer;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
@@ -51,33 +46,15 @@ public class SemanticSearcher {
 	    	System.exit(1);
 	    }
 
-		Model model = FileManager.get().loadModel(rdf);
 		OutputStreamWriter salida = new OutputStreamWriter(new FileOutputStream(output));
-
-		/*File entrada = new File(infoNeeds);
-		Scanner lector = new Scanner(entrada);
-		while (lector.hasNextLine()) {
-			String linea = lector.nextLine();
-			String queryString = linea.substring(linea.indexOf(" ") + 1);
-			String id = linea.substring(0, linea.indexOf(" "));
-			Query query = QueryFactory.create(queryString);
-			try (QueryExecution qexec = QueryExecutionFactory.create(query, model)) {
-				ResultSet results = qexec.execSelect();
-				while (results.hasNext()) {
-					Resource x = results.nextSolution().getResource("file");
-					String file = x.getURI().replace("http://mydic/documento/", "");
-					salida.write(id + "\t" + file + "\n");
-				}
-			}
-		}
-		salida.close();*/
-
-
 
 		EntityDefinition entDef = new EntityDefinition("uri", "identificador", ResourceFactory.createProperty("http://mydic/", "identificador"));
 		entDef.set("titulo", ResourceFactory.createProperty("http://mydic/titulo").asNode());
+		entDef.set("nombre-persona", ResourceFactory.createProperty("http://mydic/nombre-persona").asNode());
 		entDef.set("nombre-departamento", ResourceFactory.createProperty("http://mydic/nombre-departamento").asNode());
 		entDef.set("descripcion", ResourceFactory.createProperty("http://mydic/descripcion").asNode());
+		entDef.set("fecha", ResourceFactory.createProperty("http://mydic/fecha").asNode());
+		entDef.set("tema", ResourceFactory.createProperty("http://mydic/tema").asNode());
 		TextIndexConfig config = new TextIndexConfig(entDef);
 		config.setAnalyzer(new SpanishAnalyzer());
 		config.setQueryAnalyzer(new SpanishAnalyzer());
